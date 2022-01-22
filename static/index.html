@@ -1,0 +1,101 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" href="/static/img/history.ico">
+    <title>1History Statistics</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/css/daterangepicker.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/css/nav.css"/>
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/moment.min.js"></script>
+    <script src="/static/js/daterangepicker.js"></script>
+    <script src="/static/js/echarts.js"></script>
+    <script src="/static/js/underscore-min.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        var start = moment({{ start }});
+        var end = moment({{ end }});
+        var minDate = moment({{ min_time }});
+        var maxDate =  moment({{ max_time }});
+        $('#browse_range').daterangepicker({
+          startDate: start,
+          endDate: end,
+          minDate: minDate,
+          maxDate: maxDate,
+          format: SHOW_FORMAT,
+          ranges: {
+            'Yesterday': [moment().subtract(1, 'days'), moment()],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+            'All History': [minDate, maxDate]
+          }
+        }, chooseDaterangeCB);
+
+        chooseDaterangeCB(start, end, FIRST_INIT);
+        configChart({{ daily_counts }},
+                    {{ title_top100 }},
+                    {{ domain_top100 }});
+      });
+    </script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-static-top">
+      <span class="navbar-text">
+        <a href="https://github.com/1History/1History"><strong>1History--All histories in one place</strong></a>
+      </span>
+      <div class="container">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <div id="browse_range" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+              <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+              <span></span> <b class="caret"></b>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div id="dailyVisits" style="height:500px;border:1px solid #ccc;padding:10px;"></div>
+      </div>
+      <div class="row">
+        <div id="titleTop100" style="height:500px;border:1px solid #ccc;padding:10px;"></div>
+        <div id="domainTop100" style="height:500px;border:1px solid #ccc;padding:10px;"></div>
+      </div>
+      <div class="row table-responsive">
+        <h3 style="margin: 0 0 20px 0">TOP 100 by title</h3>
+        <table class="table table-striped">
+          <tr>
+            <th>Counts</th>
+            <th>Title</th>
+          </tr>
+          {%  for (title, cnt) in title_top100 %}
+          <tr>
+            <td>{{ cnt }}</td>
+            <td>{{ title }}</td>
+          </tr>
+          {%  endfor %}
+        </table>
+      </div>
+      <div class="row table-responsive">
+        <h3 style="margin: 0 0 20px 0">TOP 100 by domain</h3>
+        <table class="table table-striped">
+          <tr>
+            <th>Counts</th>
+            <th>Domain</th>
+          </tr>
+          {%  for (domain, cnt) in domain_top100 %}
+          <tr>
+            <td>{{ cnt }}</td>
+            <td>{{ domain }}</td>
+          </tr>
+          {%  endfor %}
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

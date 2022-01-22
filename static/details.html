@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" href="/static/img/history.ico">
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+    <script src="/static/js/moment.min.js"></script>
+    <script>
+      function go_yesterday() {
+        window.location = "/details/{{ day - 3600000*24 }}";
+      }
+
+      function go_tomorrow() {
+        window.location = "/details/{{ day + 3600000*24 }}";
+      }
+    </script>
+    <title>1history Details on {{ format_as_ymd(day) }}</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row table-responsive">
+        <center>
+          <h3 style="margin: 0 0 20px 0"><a href="/">Histories</a> on {{ format_as_ymd(day) }} UTC (0-23h) </h3>
+          <button type="button" class="btn btn-primary" onclick="go_yesterday()">Yesterday</button>
+          <button type="button" class="btn btn-primary" onclick="go_tomorrow()">Tomorrow</button>
+        </center>
+        <table class="table table-striped">
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Title</th>
+          </tr>
+          {%
+          for detail in visit_details
+          %}
+          <tr>
+            <td>{{ format_as_ymd(detail.visit_time) }}</td>
+            <td>{{ format_as_hms(detail.visit_time) }}</td>
+            <td><a href="{{ detail.url }}">{{ format_title(detail.title, detail.url) }}</a></td>
+          </tr>
+          {%
+          endfor
+          %}
+        </table>
+        <center>
+          <button type="button" class="btn btn-primary" onclick="go_yesterday()">Yesterday</button>
+          <button type="button" class="btn btn-primary" onclick="go_tomorrow()">Tomorrow</button>
+        </center>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+* 1History
+[[https://crates.io/crates/onehistory][https://img.shields.io/crates/v/onehistory.svg]]
+[[https://github.com/1History/1History/actions/workflows/CI.yml][https://github.com/1History/1History/actions/workflows/CI.yml/badge.svg]]
+
+#+begin_quote
+All your history in one place.
+#+end_quote
+
+1History is a command line tool to backup your histories of different browsers into one place.
+
+* Features
+- Support Chrome/Firefox/Safari on macOS/Linux/Windows
+- Rich dashboards to visualize your history
+- Export as CSV file
+- Entirely offline, No need to worry about privacy leaks
+
+* Screenshots
+** Daily Page View
+[[file:screenshots/daily_pv.png]]
+** Top 10 Title
+[[file:screenshots/top10_title.png]]
+** Top 10 Domain
+[[file:screenshots/top10_domain.png]]
+
+* Installation
+** From binaries
+The [[https://github.com/1History/1History/releases][release page]] includes precompiled binaries for Linux, macOS and Windows.
+
+** Cargo
+#+begin_src bash
+cargo install onehistory
+#+end_src
+
+* Usage
+#+begin_src bash
+onehistory 0.1.0
+
+USAGE:
+    onehistory [OPTIONS] <SUBCOMMAND>
+
+OPTIONS:
+    -d, --db-file  <DB_FILE>           Database path [env: OH_DB_FILE=] [default: ~/onehistory.db]
+    -h, --help                         Print help information
+    -v, --verbose
+    -V, --version                      Print version information
+
+SUBCOMMANDS:
+    backup    Backup browser history to 1History
+    export
+    help      Print this message or the help of the given subcommand(s)
+    serve     Start HTTP server to visualize history
+    show      Show default history files on your computer
+#+end_src
+** Backup
+#+begin_src bash
+USAGE:
+    onehistory backup [OPTIONS]
+
+OPTIONS:
+    -d, --disable-detect
+            Disable auto detect history files
+
+    -D, --dry-run
+
+
+    -f, --history-files <HISTORY_FILES>
+            SQLite file path of different browsers(History.db/places.sqlite...)
+
+    -h, --help
+            Print help information
+#+end_src
+=backup= is the main subcommand, it will backup browser history into 1History.
+
+1History will automatically detect history of different browsers by default, users can use =show= subcommand to check what it can find.
+
+Users can also use =-f= option to set other history files to backup, the file has the following naming convention:
+| Browser | History Filename |
+|---------+------------------|
+| Chrome  | History          |
+| Firefox | places.sqlite    |
+| Safari  | History.db       |
+
+* LICENSE
+Copyright (c) 2022 Jiacai Liu <jiacai2050+1history@gmail.com>
+
+1History is distributed under [[https://www.gnu.org/licenses/gpl-3.0.txt][GPL]] license.

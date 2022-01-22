@@ -1,0 +1,30 @@
+[package]
+name = "onehistory"
+version = "0.1.2"
+edition = "2021"
+authors = ["Jiacai Liu <jiacai2050+1history@gmail.com>"]
+description = "All your history in one place"
+homepage = "https://github.com/1History/1History"
+repository = "https://github.com/1History/1History"
+keywords = ["cli", "history", "backup", "browser"]
+readme = "README.org"
+license = "GPL-3.0"
+
+[dependencies]
+rusqlite = { version = "0.26.3", features = ["bundled"] }
+anyhow = { version = "1.0", features = ["backtrace"] }
+clap = { version = "3.0.9", features = ["derive", "env"] }
+home = "0.5.3"
+lazy_static = "1.4.0"
+env_logger = "0.9.0"
+log = "0.4.14"
+rust-embed="6.3.0"
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+mime_guess = "2.0.3"
+serde_derive = "1.0"
+serde = "1.0"
+minijinja = "0.12.0"
+glob = "0.3.0"
+chrono = "0.4"
+regex = "1"
