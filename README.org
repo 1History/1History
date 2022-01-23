@@ -1,4 +1,11 @@
-* 1History
+#+TITLE: 1History
+#+DATE: 2022-01-23T20:21:06+0800
+#+AUTHOR: Jiacai Liu
+#+LANGUAGE: cn
+#+EMAIL: jiacai2050+org@gmail.com
+#+OPTIONS: toc:nil num:nil
+#+STARTUP: content
+
 [[https://crates.io/crates/onehistory][https://img.shields.io/crates/v/onehistory.svg]]
 [[https://github.com/1History/1History/actions/workflows/CI.yml][https://github.com/1History/1History/actions/workflows/CI.yml/badge.svg]]
 
@@ -14,6 +21,7 @@ All your history in one place.
 - Export as CSV file
 - Entirely offline, No need to worry about privacy leaks
 - Well-designed schemas to avoid history duplication when backup multiple times
+- No NPM, 1History is a single binary built mainly in Rust🦀
 
 * Screenshots
 ** Daily Page View
@@ -88,6 +96,8 @@ The [[https://github.com/1History/1History/releases][release page]] includes pre
 cargo install onehistory
 #+end_src
 
+* Roadmap
+- [ ] Search by title or url
 * FAQ
 - =Error code 5: The database file is locked= :: This error happens if your browser is opened during backup, as SQLite allow only one open connection.
 
