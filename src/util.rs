@@ -144,6 +144,12 @@ pub fn domain_from(url: String) -> String {
     url
 }
 
+pub fn full_timerange() -> (i64, i64) {
+    let start = 0;
+    let end = now_as_unixepoch_ms() + 3_600_000; // 1 hour later
+    (start, end) // Use this timerange to represent ALL
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

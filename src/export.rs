@@ -7,12 +7,11 @@ use std::{
 
 use crate::{
     database::Database,
-    util::{now_as_unixepoch_ms, unixepoch_as_ymdhms},
+    util::{full_timerange, unixepoch_as_ymdhms},
 };
 
 pub fn export_csv(csv_file: String, db_file: String) -> Result<()> {
-    let start = 0;
-    let end = now_as_unixepoch_ms() + 3_600_000;
+    let (start, end) = full_timerange();
     debug!("start:{}, end:{}", start, end);
 
     let db = Database::open(db_file).context("open 1history db")?;

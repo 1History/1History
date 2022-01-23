@@ -7,7 +7,7 @@ mod web;
 
 use crate::database::Database;
 use crate::source::Source;
-use crate::util::{now_as_unixepoch_ms, DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
+use crate::util::{full_timerange, DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use export::export_csv;
@@ -87,14 +87,14 @@ fn show() -> Result<()> {
 }
 
 fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<()> {
-    let start = 0; // Currently use 0 to backup all histories
-    let end = now_as_unixepoch_ms() + 3_600_000; // 1 hour later
+    let (start, end) = full_timerange();
     debug!("start:{}, end:{}", start, end);
 
     let db = Database::open(db_file).context("open dst db")?;
 
     let mut found = 0;
     let mut total_affected = 0;
+    let mut total_duplicated = 0;
     for his_file in history_files {
         let s = Source::open(his_file.to_string()).context("open")?;
         let rows = s.select(start, end).context("select")?.collect::<Vec<_>>();
@@ -102,13 +102,19 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
         found += rows.len();
 
         if !dry_run {
-            let affected = db.persist(s.path(), rows).context("persist")?;
-            debug!("{:?} save {} histories", s.name(), affected);
+            let (affected, duplicated) = db.persist(s.path(), rows).context("persist")?;
+            debug!(
+                "{:?} affected:{}, duplicated:{}",
+                s.name(),
+                affected,
+                duplicated
+            );
             total_affected += affected;
+            total_duplicated += duplicated;
         }
     }
 
-    info!("Summary:found {found}, imported {total_affected}");
+    info!("Summary\nFound:{found}, Imported:{total_affected}, Duplicated: {total_duplicated}");
     Ok(())
 }
 

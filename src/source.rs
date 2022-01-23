@@ -13,7 +13,7 @@ pub struct Source {
 
 impl Source {
     pub fn open(path: String) -> Result<Source> {
-        let flags = OpenFlags::SQLITE_OPEN_READ_ONLY;
+        let flags = OpenFlags::SQLITE_OPEN_READ_WRITE;
         let conn = Connection::open_with_flags(&path, flags).context(path.clone())?;
         let name = Self::detect_name(&conn).context(format!("detect {path}"))?;
         Ok(Source { path, name, conn })

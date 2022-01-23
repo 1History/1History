@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS import_records (
         }
     }
 
-    fn persist_visits(&self, src_path: &str, batch: Vec<HistoryVisit>) -> Result<usize> {
+    fn persist_visits(&self, src_path: &str, batch: Vec<HistoryVisit>) -> Result<(usize, usize)> {
         assert!(!batch.is_empty());
 
         let sql = r#"
@@ -114,6 +114,7 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
         let tx = conn.transaction()?;
         let last_ts = batch[batch.len() - 1].visit_time;
         let mut affected = 0;
+        let mut duplicated = 0;
         for HistoryVisit {
             item_id,
             visit_time,
@@ -125,6 +126,7 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
                 Err(e) => {
                     if let sqlError::SqliteFailure(ffi_err, _msg) = &e {
                         if ffi_err.code == ErrorCode::ConstraintViolation {
+                            duplicated += 1;
                             let ext_code = ffi_err.extended_code;
                             debug!(
                                 "[ignore]onehistory_visits duplicated. id:{item_id}, \
@@ -140,13 +142,14 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
         Self::update_process(&tx, src_path, last_ts)?;
         tx.commit()?;
 
-        Ok(affected)
+        Ok((affected, duplicated))
     }
 
-    pub fn persist(&self, src_path: &str, details: Vec<VisitDetail>) -> Result<usize> {
+    pub fn persist(&self, src_path: &str, details: Vec<VisitDetail>) -> Result<(usize, usize)> {
         let mut i = 0;
         let mut batch = None; // Use Option so we can take it out later
         let mut affected = 0;
+        let mut duplicated = 0;
         for VisitDetail {
             url,
             title,
@@ -163,14 +166,18 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
                 visit_type,
             });
             if i % self.persist_batch == 0 {
-                affected += self.persist_visits(src_path, batch.take().unwrap())?;
+                let (a, d) = self.persist_visits(src_path, batch.take().unwrap())?;
+                affected += a;
+                duplicated += d;
             }
         }
         if batch.is_some() {
-            affected += self.persist_visits(src_path, batch.take().unwrap())?;
+            let (a, d) = self.persist_visits(src_path, batch.take().unwrap())?;
+            affected += a;
+            duplicated += d;
         }
 
-        Ok(affected)
+        Ok((affected, duplicated))
     }
 
     fn update_process(tx: &Transaction<'_>, src_path: &str, ts: i64) -> Result<()> {

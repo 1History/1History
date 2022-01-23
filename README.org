@@ -13,6 +13,7 @@ All your history in one place.
 - Rich dashboards to visualize your history
 - Export as CSV file
 - Entirely offline, No need to worry about privacy leaks
+- Well-designed schemas to avoid history duplication when backup multiple times
 
 * Screenshots
 ** Daily Page View
@@ -82,6 +83,12 @@ Users can also use =-f= option to set other history files to backup, the file ha
 | Chrome  | History          |
 | Firefox | places.sqlite    |
 | Safari  | History.db       |
+
+* FAQ
+- =Error code 5: The database file is locked= :: This error happens if your browser is opened during backup, as SQLite allow only one open connection.
+
+  Close the browser is one solution, or you can copy history file to other directory other than default location.
+
 
 * LICENSE
 Copyright (c) 2022 Jiacai Liu <jiacai2050+1history@gmail.com>
