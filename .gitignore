@@ -1,2 +1,5 @@
 /target
 .DS_Store
+onehistory
+*zip
+*zip.sha256sum

@@ -1,4 +1,2 @@
-
-
-run:
-	cargo run -- -f /tmp/History.db -f /tmp/places.sqlite
+release-arm64:
+	./release-arm64.sh

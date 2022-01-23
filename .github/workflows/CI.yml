@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - src
 
 jobs:
   lint_and_test:
