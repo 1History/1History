@@ -23,9 +23,12 @@ All your history in one place.
 [[file:screenshots/top10_domain.png]]
 
 * Installation
-** From binaries
+** Homebrew
+#+begin_src bash
+brew install 1History/onehistory/onehistory
+#+end_src
+** Binaries
 The [[https://github.com/1History/1History/releases][release page]] includes precompiled binaries for Linux, macOS and Windows.
-
 ** Cargo
 #+begin_src bash
 cargo install onehistory
@@ -83,4 +86,4 @@ Users can also use =-f= option to set other history files to backup, the file ha
 * LICENSE
 Copyright (c) 2022 Jiacai Liu <jiacai2050+1history@gmail.com>
 
-1History is distributed under [[https://www.gnu.org/licenses/gpl-3.0.txt][GPL]] license.
+1History is distributed under [[https://www.gnu.org/licenses/gpl-3.0.txt][GPL-3.0]] license.
