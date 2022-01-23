@@ -23,18 +23,6 @@ All your history in one place.
 ** Top 10 Domain
 [[file:screenshots/top10_domain.png]]
 
-* Installation
-** Homebrew
-#+begin_src bash
-brew install 1History/onehistory/onehistory
-#+end_src
-** Binaries
-The [[https://github.com/1History/1History/releases][release page]] includes precompiled binaries for Linux, macOS and Windows.
-** Cargo
-#+begin_src bash
-cargo install onehistory
-#+end_src
-
 * Usage
 #+begin_src bash
 onehistory 0.1.0
@@ -73,7 +61,7 @@ OPTIONS:
     -h, --help
             Print help information
 #+end_src
-=backup= is the main subcommand, it will backup browser history into 1History.
+=backup= is the main subcommand, it will import browser history into 1History.
 
 1History will automatically detect history of different browsers by default, users can use =show= subcommand to check what it can find.
 
@@ -83,6 +71,22 @@ Users can also use =-f= option to set other history files to backup, the file ha
 | Chrome  | History          |
 | Firefox | places.sqlite    |
 | Safari  | History.db       |
+
+** Serve
+After backup browser history into 1History, the next step is to visualize those data.
+
+=serve= subcommand will start a HTTP server at [[http://127.0.0.1:9960]], open this in your browser to explore.
+* Installation
+** Homebrew
+#+begin_src bash
+brew install 1History/onehistory/onehistory
+#+end_src
+** Binaries
+The [[https://github.com/1History/1History/releases][release page]] includes precompiled binaries for Linux, macOS and Windows.
+** Cargo
+#+begin_src bash
+cargo install onehistory
+#+end_src
 
 * FAQ
 - =Error code 5: The database file is locked= :: This error happens if your browser is opened during backup, as SQLite allow only one open connection.
