@@ -1,13 +1,12 @@
 const SHOW_FORMAT = "YYYY/MM/DD";
-const FIRST_INIT = "FIRST_INIT";
 
 function initCharts(dailyVisits, titleTop, domainTop) {
-  console.log(titleTop);
-  console.log(domainTop);
+  // console.log(titleTop);
+  // console.log(domainTop);
   return function(ec) {
     initDailyVisits(ec, dailyVisits);
-    initTop10(ec, titleTop, 'titleTop100', 'TOP10 sites(by title)');
-    initTop10(ec, domainTop, 'domainTop100', 'TOP10 sites(by domain)');
+    initTop10(ec, titleTop, 'titleTop10', 'TOP10 sites(by title)');
+    initTop10(ec, domainTop, 'domainTop10', 'TOP10 sites(by domain)');
   };
 }
 
@@ -19,7 +18,7 @@ function initDailyVisits(ec, dailyVisits) {
     color: ['#23B7E5'],
     title : {
       text : 'Daily PV',
-      subtext : 'Click any node to view visit details'
+      subtext : 'Click any node to view details'
     },
     tooltip : {
       trigger: 'item',
@@ -81,8 +80,8 @@ function initDailyVisits(ec, dailyVisits) {
     ]
   });
   dailyVisitsChart.on(ecConfig.EVENT.CLICK, function(param) {
-    window.location = "/details/" + param.data[0].getTime();
-
+    let url = `/details/${param.data[0].getTime()}`;
+    window.open(url, '_blank');
   });
 
 }
@@ -164,12 +163,13 @@ function configChart(dailyVisits, titleTop100, domainTop100) {
   );
 }
 
-function chooseDaterangeCB(start, end, chosenLabel) {
-  if (chosenLabel == FIRST_INIT) {
-    start = start.format(SHOW_FORMAT);
-    end = end.format(SHOW_FORMAT);
-    $('#browse_range span').html(`${start} - ${end}`);
-  } else {
-    window.location = `/?start=${start.valueOf()}&end=${end.valueOf()}`;
-  }
+function chooseDaterangeCB(start, end) {
+  $('#browse_range span').html(`${start.format(SHOW_FORMAT)} - ${end.format(SHOW_FORMAT)}`);
+}
+
+function ohsearch() {
+  let kw = $('#keyword').val();
+  let range = $('#browse_range').data('daterangepicker');
+
+  window.location = `/?start=${range.startDate.valueOf()}&end=${range.endDate.valueOf()}&keyword=${kw}`;
 }

@@ -1,4 +1,5 @@
-use chrono::{DateTime, TimeZone, Utc};
+use anyhow::Context;
+use chrono::{Date, DateTime, FixedOffset, Local, NaiveDate, TimeZone, Utc};
 use home::home_dir;
 use lazy_static::lazy_static;
 use log::debug;
@@ -7,13 +8,12 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::env::temp_dir;
 use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 const OS_TYPE: &str = std::env::consts::OS;
 
 lazy_static! {
     pub static ref DEFAULT_DB_FILE: String = default_location("onehistory.db");
-    pub static ref DEFAULT_CSV_FILE: String = default_location(&format!("onehistory-{}.csv", unixepoch_as_ymd(now_as_unixepoch_ms())));
+    pub static ref DEFAULT_CSV_FILE: String = default_location(&format!("onehistory-{}.csv", unixepoch_as_ymd(tomorrow_midnight()-1)));
     static ref DEFAULT_PROFILES: HashMap<&'static str, String> = {
         let mut m = HashMap::new();
         if let Some(home) = home_dir() {
@@ -87,28 +87,38 @@ fn default_location(filename: &str) -> String {
     join_path(base, filename)
 }
 
-pub fn now_as_unixepoch_ms() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as i64
+pub fn tomorrow_midnight() -> i64 {
+    let now = Local::today();
+    let dt: DateTime<Local> = now.and_hms(0, 0, 0);
+    dt.timestamp_millis() + 24 * 3_600_000
+}
+
+pub fn ymd_midnight(ymd: &str) -> anyhow::Result<i64> {
+    let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").context("not ymd date")?;
+
+    lazy_static! {
+        static ref LOCAL_OFFSET: FixedOffset = *Local::now().offset();
+    }
+
+    let dc: Date<Local> = Date::from_utc(nd, *LOCAL_OFFSET);
+    Ok(dc.and_hms(0, 0, 0).timestamp_millis())
 }
 
 pub fn unixepoch_as_ymd(ts: i64) -> String {
     let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<chrono::Local> = DateTime::from(utc);
+    let dt: DateTime<Local> = DateTime::from(utc);
     dt.format("%Y-%m-%d").to_string()
 }
 
 pub fn unixepoch_as_hms(ts: i64) -> String {
     let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<chrono::Local> = DateTime::from(utc);
+    let dt: DateTime<Local> = DateTime::from(utc);
     dt.format("%H:%M:%S").to_string()
 }
 
 pub fn unixepoch_as_ymdhms(ts: i64) -> String {
     let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<chrono::Local> = DateTime::from(utc);
+    let dt: DateTime<Local> = DateTime::from(utc);
     dt.format("%Y-%m-%d %H:%M:%S").to_string()
 }
 
@@ -146,7 +156,7 @@ pub fn domain_from(url: String) -> String {
 
 pub fn full_timerange() -> (i64, i64) {
     let start = 0;
-    let end = now_as_unixepoch_ms() + 3_600_000; // 1 hour later
+    let end = tomorrow_midnight();
     (start, end) // Use this timerange to represent ALL
 }
 

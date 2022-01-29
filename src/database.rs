@@ -1,6 +1,6 @@
 use crate::{
-    types::{DailyCount, VisitDetail},
-    util::domain_from,
+    types::VisitDetail,
+    util::{domain_from, ymd_midnight},
 };
 use anyhow::{Context, Result};
 use log::debug;
@@ -203,8 +203,24 @@ ON CONFLICT (data_path)
         ts * 1_000
     }
 
-    pub fn select_visits(&self, start: i64, end: i64) -> Result<Vec<VisitDetail>> {
-        let sql = r#"
+    fn keyword_to_like(kw: Option<String>) -> String {
+        kw.map_or_else(
+            || "1".to_string(),
+            |v| {
+                let v = v.replace("'", "");
+                format!("(url like '%{v}%' or title like '%{v}%')")
+            },
+        )
+    }
+
+    pub fn select_visits(
+        &self,
+        start: i64,
+        end: i64,
+        keyword: Option<String>,
+    ) -> Result<Vec<VisitDetail>> {
+        let sql = format!(
+            r#"
 SELECT
     url,
     title,
@@ -214,17 +230,21 @@ FROM
     onehistory_urls u,
     onehistory_visits v ON u.id = v.item_id
 WHERE
-    visit_time BETWEEN :start AND :end
+    visit_time BETWEEN :start AND :end and {}
 ORDER BY
     visit_time
-"#;
+"#,
+            Self::keyword_to_like(keyword)
+        );
+
         let conn = self.conn.lock().unwrap();
-        let mut stat = conn.prepare(sql)?;
+        let mut stat = conn.prepare(&sql)?;
 
         let rows = stat.query_map(
             named_params! {
                 ":start": Self::unixepoch_to_prtime(start),
                 ":end": Self::unixepoch_to_prtime(end),
+
             },
             |row| {
                 let detail = VisitDetail {
@@ -245,49 +265,61 @@ ORDER BY
         Ok(res)
     }
 
-    pub fn select_daily_count(&self, start: i64, end: i64) -> Result<Vec<DailyCount>> {
-        let sql = r#"
+    pub fn select_daily_count(
+        &self,
+        start: i64,
+        end: i64,
+        keyword: Option<String>,
+    ) -> Result<Vec<(i64, i64)>> {
+        let sql = format!(
+            r#"
 SELECT
     visit_day,
     count(1)
 FROM (
     SELECT
-        cast(round(visit_time - (visit_time % (86400 * 1000000))) / 1000 AS integer) AS visit_day
+        strftime ('%Y-%m-%d', visit_time / 1000000, 'unixepoch', 'localtime') AS visit_day
     FROM
-        onehistory_visits
+        onehistory_visits v,
+        onehistory_urls u ON v.item_id = u.id
     WHERE
-        visit_time BETWEEN :start AND :end)
-GROUP BY
-    visit_day
-ORDER BY
-    visit_day;
-"#;
+        visit_time BETWEEN :start AND :end
+        AND {})
+    GROUP BY
+        visit_day
+    ORDER BY
+        visit_day;
+"#,
+            Self::keyword_to_like(keyword)
+        );
         let conn = self.conn.lock().unwrap();
-        let mut stat = conn.prepare(sql)?;
+        let mut stat = conn.prepare(&sql)?;
 
         let rows = stat.query_map(
             named_params! {
                 ":start": Self::unixepoch_to_prtime(start),
                 ":end": Self::unixepoch_to_prtime(end),
             },
-            |row| {
-                Ok(DailyCount {
-                    day: row.get(0)?,
-                    count: row.get(1)?,
-                })
-            },
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
 
-        let mut res: Vec<DailyCount> = Vec::new();
+        let mut res = Vec::new();
         for r in rows {
-            res.push(r?);
+            let (ymd, cnt): (String, i64) = r?;
+            res.push((ymd_midnight(&ymd)?, cnt));
         }
 
         Ok(res)
     }
 
-    pub fn select_domain_top100(&self, start: i64, end: i64) -> Result<Vec<(String, i64)>> {
-        let sql = r#"
+    pub fn select_domain_top100(
+        &self,
+        start: i64,
+        end: i64,
+        keyword: Option<String>,
+    ) -> Result<Vec<(String, i64)>> {
+        let sql = format!(
+            r#"
 SELECT
     url,
     count(1) AS cnt
@@ -299,20 +331,21 @@ FROM (
         onehistory_urls u ON v.item_id = u.id
     WHERE
         visit_time BETWEEN :start AND :end
-        AND title != '')
+        AND title != '' AND {})
 GROUP BY
     url
 ORDER BY
     cnt DESC
-"#;
-        let url_top100 = self.select_top100(sql, start, end)?;
+"#,
+            Self::keyword_to_like(keyword)
+        );
+        let url_top100 = self.select_top100(&sql, start, end)?;
 
         let mut domain_top = HashMap::new();
         for (url, cnt) in url_top100 {
             let domain = domain_from(url);
             let total = domain_top.entry(domain).or_insert(cnt);
             *total += cnt;
-            // {:domain (or (second (re-find #"://(.+?)/" url))
         }
         let mut top_arr = domain_top.into_iter().collect::<Vec<(String, i64)>>();
         top_arr.sort_by(|a, b| b.1.cmp(&a.1));
@@ -320,8 +353,14 @@ ORDER BY
         Ok(top_arr.into_iter().take(100).collect::<Vec<_>>())
     }
 
-    pub fn select_title_top100(&self, start: i64, end: i64) -> Result<Vec<(String, i64)>> {
-        let sql = r#"
+    pub fn select_title_top100(
+        &self,
+        start: i64,
+        end: i64,
+        keyword: Option<String>,
+    ) -> Result<Vec<(String, i64)>> {
+        let sql = format!(
+            r#"
 SELECT
     title,
     count(1) AS cnt
@@ -333,14 +372,16 @@ FROM (
         onehistory_urls u ON v.item_id = u.id
     WHERE
         visit_time BETWEEN :start AND :end
-        AND title != '')
+        AND title != '' AND {})
 GROUP BY
     title
 ORDER BY
     cnt DESC
 LIMIT 100;
-"#;
-        self.select_top100(sql, start, end)
+"#,
+            Self::keyword_to_like(keyword)
+        );
+        self.select_top100(&sql, start, end)
     }
 
     fn select_top100(&self, sql: &str, start: i64, end: i64) -> Result<Vec<(String, i64)>> {
