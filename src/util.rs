@@ -185,4 +185,12 @@ mod tests {
             assert_eq!(domain_from(url.to_string()), expected);
         }
     }
+
+    #[test]
+    fn test_ymd_midnight() {
+        let cases = vec![("2022-01-15", 1642176000000)];
+        for (ymd, expected) in cases {
+            assert_eq!(ymd_midnight(ymd).unwrap(), expected);
+        }
+    }
 }

@@ -4,8 +4,28 @@
     <meta charset="utf-8">
     <link rel="icon" href="/static/img/history.ico">
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
     <script src="/static/js/moment.min.js"></script>
-    <title>1History Details on {{ format_as_ymd(day) }}</title>
+    <script>
+      $(function() {
+        function ohsearchDetails(da) {
+          let kw = $('#keyword').val();
+          window.location = `/details/{{ymd}}?keyword=${encodeURIComponent(kw)}`;
+          return false;
+        }
+        $('#keyword').keypress(function (e) {
+          if (e.which == 13) {
+            ohsearchDetails();
+            return false;
+          }
+        });
+        $('#submit').click(function() {
+          ohsearchDetails();
+          return false;
+        });
+      });
+    </script>
+    <title>1History Details on {{ ymd }}</title>
   </head>
 
   <body>
@@ -13,13 +33,26 @@
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="/">1History</a>
-          <a class="navbar-brand" href="/details/{{ day }}">Details on {{ format_as_ymd(day) }} </a>
+          <a class="navbar-brand" href="/details/{{ ymd }}">{{ ymd }} </a>
         </div>
+
         <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/details/{{ day - 3600000*24 }}"> Yesterday </a></li>
-            <li><a href="/details/{{ day + 3600000*24 }}"> Tomorrow </a></li>
+
+          <ul class="nav navbar-nav navbar-left">
+            <li><a href="/details/{{ format_as_ymd(ymd_ts - 3600000*24) }}?{{ {"keyword": keyword} | urlencode }}"> Yesterday </a></li>
+            <li><a href="/details/{{ format_as_ymd(ymd_ts + 3600000*24) }}?{{ {"keyword": keyword} | urlencode }}"> Tomorrow</a></li>
           </ul>
+          <form class="navbar-form navbar-right">
+            <div class="form-group" >
+              <input id="keyword" style="width: 500px;" type="search" placeholder="Search..." class="form-control" value="{{ keyword }}">
+            </div>
+            <div class="form-group">
+              <input type="submit" id="submit" class="btn btn-success" value="Search">
+            </div>
+            <div class="form-group">
+              <span>{{ visit_details | length }} results</span>
+            </div>
+          </form>
         </div>
       </div>
     </nav>
@@ -47,8 +80,8 @@
     <footer class="footer">
       <div class="container text-center">
         <p class="text-muted">
-        <p><a href="https://github.com/1History/1History" target="_blank"><i class="glyphicon glyphicon-menu-left"></i><i class="glyphicon glyphicon-menu-right"></i></a> With <i class="glyphicon glyphicon-heart"></i> by <a href="https://twitter.com/liujiacai" target="_blank">Jiacai Liu.</a> Current version: {{ version }}</p>
         </p>
+        <p><a href="https://github.com/1History/1History" target="_blank"><i class="glyphicon glyphicon-menu-left"></i><i class="glyphicon glyphicon-menu-right"></i></a> With <i class="glyphicon glyphicon-heart"></i> by <a href="https://twitter.com/liujiacai" target="_blank">Jiacai Liu.</a> Current version: {{ version }}</p>
       </div>
     </footer>
   </body>

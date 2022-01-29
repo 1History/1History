@@ -19,6 +19,11 @@ pub struct VisitDetail {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct DetailsQueryParams {
+    pub keyword: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct IndexQueryParams {
     pub start: Option<i64>,
     pub end: Option<i64>,

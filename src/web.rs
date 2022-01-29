@@ -1,8 +1,9 @@
 use crate::{
     database::Database,
-    types::{ErrorMessage, IndexQueryParams, ServerError},
+    types::{DetailsQueryParams, ErrorMessage, IndexQueryParams, ServerError},
     util::{
-        minijinja_format_as_hms, minijinja_format_as_ymd, minijinja_format_title, tomorrow_midnight,
+        minijinja_format_as_hms, minijinja_format_as_ymd, minijinja_format_title,
+        tomorrow_midnight, ymd_midnight,
     },
 };
 use anyhow::{Context, Error, Result};
@@ -57,11 +58,16 @@ impl Server {
         warp::any().map(move || db.clone())
     }
 
-    async fn details(db: Arc<Database>, day: i64) -> Result<impl Reply, Rejection> {
-        let start = day;
+    async fn details(
+        db: Arc<Database>,
+        ymd: String,
+        query_params: DetailsQueryParams,
+    ) -> Result<impl Reply, Rejection> {
+        let start = ymd_midnight(&ymd).map_err(ServerError::from)?;
         let end = start + 3_600_000 * 24;
+        let keyword = query_params.keyword;
         let visit_details = db
-            .select_visits(start, end, None)
+            .select_visits(start, end, keyword.clone())
             .map_err(ServerError::from)?;
 
         let asset = Asset::get("details.html").unwrap();
@@ -77,9 +83,11 @@ impl Server {
         let tmpl = env.get_template("details").unwrap();
         let body = tmpl
             .render(context!(
-                day => day,
+                ymd => ymd,
+                ymd_ts => start,
                 visit_details => visit_details,
                 version => clap::crate_version!(),
+                keyword => keyword.unwrap_or_else(|| "".to_string()),
             ))
             .map_err(|e| ServerError::from(Error::from(e)))?;
 
@@ -146,7 +154,8 @@ impl Server {
             .and_then(Self::index);
 
         let detail = Self::with_db(self.db.clone())
-            .and(warp::path!("details" / i64))
+            .and(warp::path!("details" / String))
+            .and(warp::query::<DetailsQueryParams>())
             .and_then(Self::details);
 
         let static_route = warp::path("static")

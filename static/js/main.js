@@ -1,14 +1,32 @@
-const SHOW_FORMAT = "YYYY/MM/DD";
+const SHOW_FORMAT = "YYYY-MM-DD";
 
-function initCharts(dailyVisits, titleTop, domainTop) {
+function configChart(dailyVisits, titleTop100, domainTop100, keyword) {
+  require.config({
+    paths: {
+      echarts: '/static/js'
+    }
+  });
+  require(
+    [
+      'echarts',
+      'echarts/chart/line',
+      'echarts/chart/pie',
+      'echarts/chart/bar',
+      'echarts/chart/funnel'
+    ],
+    initCharts(dailyVisits, titleTop100, domainTop100, keyword)
+  );
+}
+
+function initCharts(dailyVisits, titleTop, domainTop, keyword) {
   return function(ec) {
-    initDailyVisits(ec, dailyVisits);
+    initDailyVisits(ec, dailyVisits, keyword);
     initTop10(ec, titleTop, 'titleTop10', 'TOP10 sites(by title)');
     initTop10(ec, domainTop, 'domainTop10', 'TOP10 sites(by domain)');
   };
 }
 
-function initDailyVisits(ec, dailyVisits) {
+function initDailyVisits(ec, dailyVisits, keyword) {
   var ecConfig = require('echarts/config');
   //--- Trend Chart ---
   var dailyVisitsChart = ec.init(document.getElementById('dailyVisits'));
@@ -21,12 +39,7 @@ function initDailyVisits(ec, dailyVisits) {
     tooltip : {
       trigger: 'item',
       formatter : function (params) {
-        var date = new Date(params.value[0]);
-        data = date.getFullYear() + '/'
-          + (date.getMonth() + 1) + '/'
-          + date.getDate();
-        return data + '<br/>'
-          + "PV: " + params.value[1];
+        return `${moment(params.value[0]).format(SHOW_FORMAT)} <br/> PV: ${params.value[1]}`;
       }
     },
     toolbox: {
@@ -77,8 +90,8 @@ function initDailyVisits(ec, dailyVisits) {
       }
     ]
   });
-  dailyVisitsChart.on(ecConfig.EVENT.CLICK, function(param) {
-    let url = `/details/${param.data[0].getTime()}`;
+  dailyVisitsChart.on(ecConfig.EVENT.CLICK, function(params) {
+    let url = `/details/${moment(params.value[0]).format(SHOW_FORMAT)}?keyword=${keyword}`;
     window.open(url, '_blank');
   });
 
@@ -143,29 +156,11 @@ function initTop10(ec, topItems, eleId, title) {
   });
 }
 
-function configChart(dailyVisits, titleTop100, domainTop100) {
-  require.config({
-    paths: {
-      echarts: '/static/js'
-    }
-  });
-  require(
-    [
-      'echarts',
-      'echarts/chart/line',
-      'echarts/chart/pie',
-      'echarts/chart/bar',
-      'echarts/chart/funnel'
-    ],
-    initCharts(dailyVisits, titleTop100, domainTop100)
-  );
-}
-
 function chooseDaterangeCB(start, end) {
   $('#browse_range span').html(`${start.format(SHOW_FORMAT)} - ${end.format(SHOW_FORMAT)}`);
 }
 
-function ohsearch() {
+function ohsearchIndex() {
   let kw = $('#keyword').val();
   let range = $('#browse_range').data('daterangepicker');
 
