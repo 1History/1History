@@ -164,5 +164,5 @@ function ohsearchIndex() {
   let kw = $('#keyword').val();
   let range = $('#browse_range').data('daterangepicker');
 
-  window.location = `/?start=${range.startDate.valueOf()}&end=${range.endDate.valueOf()}&keyword=${kw}`;
+  window.location = `/?start=${range.startDate.format(SHOW_FORMAT)}&end=${range.endDate.format(SHOW_FORMAT)}&keyword=${encodeURIComponent(kw)}`;
 }

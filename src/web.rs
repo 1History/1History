@@ -1,6 +1,6 @@
 use crate::{
     database::Database,
-    types::{DetailsQueryParams, ErrorMessage, IndexQueryParams, ServerError},
+    types::{ClientError, DetailsQueryParams, ErrorMessage, IndexQueryParams, ServerError},
     util::{
         minijinja_format_as_hms, minijinja_format_as_ymd, minijinja_format_title,
         tomorrow_midnight, ymd_midnight,
@@ -63,7 +63,7 @@ impl Server {
         ymd: String,
         query_params: DetailsQueryParams,
     ) -> Result<impl Reply, Rejection> {
-        let start = ymd_midnight(&ymd).map_err(ServerError::from)?;
+        let start = ymd_midnight(&ymd).map_err(ClientError::from)?;
         let end = start + 3_600_000 * 24;
         let keyword = query_params.keyword;
         let visit_details = db
@@ -98,10 +98,17 @@ impl Server {
         db: Arc<Database>,
         query_params: IndexQueryParams,
     ) -> Result<impl Reply, Rejection> {
-        let end = query_params.end.unwrap_or_else(|| tomorrow_midnight() - 1);
+        let end = query_params
+            .end
+            .map_or_else(|| Ok(tomorrow_midnight() - 1), |ymd| ymd_midnight(&ymd))
+            .map_err(ClientError::from)?;
         let start = query_params
             .start
-            .unwrap_or_else(|| tomorrow_midnight() - DEFAULT_SEARCH_INTERVAL);
+            .map_or_else(
+                || Ok(tomorrow_midnight() - DEFAULT_SEARCH_INTERVAL),
+                |ymd| ymd_midnight(&ymd),
+            )
+            .map_err(ClientError::from)?;
         let keyword = query_params.keyword;
 
         let daily_counts = db
@@ -183,6 +190,9 @@ impl Server {
             message = "NOT_FOUND";
         } else if let Some(ServerError { e }) = err.find() {
             code = StatusCode::INTERNAL_SERVER_ERROR;
+            message = e;
+        } else if let Some(ClientError { e }) = err.find() {
+            code = StatusCode::BAD_REQUEST;
             message = e;
         } else {
             error!("unhandled rejection: {:?}", err);

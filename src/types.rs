@@ -25,8 +25,8 @@ pub struct DetailsQueryParams {
 
 #[derive(Debug, Deserialize)]
 pub struct IndexQueryParams {
-    pub start: Option<i64>,
-    pub end: Option<i64>,
+    pub start: Option<String>, // Y-m-d
+    pub end: Option<String>,   // Y-m-d
     pub keyword: Option<String>,
 }
 
@@ -42,6 +42,19 @@ impl From<Error> for ServerError {
 }
 
 impl Reject for ServerError {}
+
+#[derive(Debug)]
+pub struct ClientError {
+    pub e: String,
+}
+
+impl From<Error> for ClientError {
+    fn from(err: Error) -> Self {
+        Self { e: err.to_string() }
+    }
+}
+
+impl Reject for ClientError {}
 
 #[derive(Serialize)]
 pub struct ErrorMessage {

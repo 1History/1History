@@ -94,7 +94,7 @@ pub fn tomorrow_midnight() -> i64 {
 }
 
 pub fn ymd_midnight(ymd: &str) -> anyhow::Result<i64> {
-    let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").context("not ymd date")?;
+    let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").context("not %Y-%m-%d date")?;
 
     lazy_static! {
         static ref LOCAL_OFFSET: FixedOffset = *Local::now().offset();
