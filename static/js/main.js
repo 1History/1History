@@ -1,8 +1,6 @@
 const SHOW_FORMAT = "YYYY/MM/DD";
 
 function initCharts(dailyVisits, titleTop, domainTop) {
-  // console.log(titleTop);
-  // console.log(domainTop);
   return function(ec) {
     initDailyVisits(ec, dailyVisits);
     initTop10(ec, titleTop, 'titleTop10', 'TOP10 sites(by title)');
