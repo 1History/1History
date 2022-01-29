@@ -8,7 +8,7 @@ mod web;
 use crate::database::Database;
 use crate::source::Source;
 use crate::util::{full_timerange, DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
-use anyhow::{Context, Result};
+use anyhow::{Context, Error, Result};
 use clap::{Parser, Subcommand};
 use export::export_csv;
 use log::{debug, error, info, LevelFilter};
@@ -95,8 +95,8 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
     let mut found = 0;
     let mut total_affected = 0;
     let mut total_duplicated = 0;
-    for his_file in history_files {
-        let s = Source::open(his_file.to_string()).context("open")?;
+    let mut persist = |history_file: String| {
+        let s = Source::open(history_file).context("open")?;
         let rows = s.select(start, end).context("select")?.collect::<Vec<_>>();
         debug!("{:?} select {} histories", s.name(), rows.len());
         found += rows.len();
@@ -111,6 +111,12 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
             );
             total_affected += affected;
             total_duplicated += duplicated;
+        };
+        Ok::<_, Error>(())
+    };
+    for his_file in history_files {
+        if let Err(e) = persist(his_file.clone()) {
+            error!("{} persist failed, err: {:?}", his_file, e);
         }
     }
 

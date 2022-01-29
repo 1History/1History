@@ -89,15 +89,14 @@ After backup browser history into 1History, the next step is to visualize those 
 #+begin_src bash
 brew install 1History/onehistory/onehistory
 #+end_src
-** Binaries
+** Binary
 The [[https://github.com/1History/1History/releases][release page]] includes precompiled binaries for Linux, macOS and Windows.
 ** Cargo
 #+begin_src bash
 cargo install onehistory
 #+end_src
 
-* Roadmap
-- [ ] Search by title or url
+
 * FAQ
 - =Error code 5: The database file is locked= :: This error happens if your browser is opened during backup, as SQLite allow only one open connection.
 

@@ -25,7 +25,7 @@ pub fn export_csv(csv_file: String, db_file: String) -> Result<()> {
     let mut buf_writer = BufWriter::new(f);
 
     buf_writer.write_all(b"time,title,url,visit_type\n")?;
-    let visits = db.select_visits(start, end)?;
+    let visits = db.select_visits(start, end, None)?;
     let len = visits.len();
     for visit in visits {
         buf_writer.write_all(

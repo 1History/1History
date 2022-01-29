@@ -18,17 +18,16 @@ pub struct VisitDetail {
     pub visit_type: i64,
 }
 
-#[derive(Debug)]
-pub struct DailyCount {
-    // unix_epoch_ms
-    pub day: i64,
-    pub count: i64,
+#[derive(Debug, Deserialize)]
+pub struct DetailsQueryParams {
+    pub keyword: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct TimeRange {
-    pub start: Option<i64>,
-    pub end: Option<i64>,
+pub struct IndexQueryParams {
+    pub start: Option<String>, // Y-m-d
+    pub end: Option<String>,   // Y-m-d
+    pub keyword: Option<String>,
 }
 
 #[derive(Debug)]
@@ -43,6 +42,19 @@ impl From<Error> for ServerError {
 }
 
 impl Reject for ServerError {}
+
+#[derive(Debug)]
+pub struct ClientError {
+    pub e: String,
+}
+
+impl From<Error> for ClientError {
+    fn from(err: Error) -> Self {
+        Self { e: err.to_string() }
+    }
+}
+
+impl Reject for ClientError {}
 
 #[derive(Serialize)]
 pub struct ErrorMessage {
