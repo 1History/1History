@@ -73,14 +73,18 @@ OPTIONS:
 #+end_src
 =backup= is the main subcommand, it will import browser history into 1History.
 
-1History will automatically detect history of different browsers by default, users can use =show= subcommand to check what it can find.
+1History will automatically detect history of different browsers by default, =show= subcommand will show what it can find.
 
-Users can also use =-f= option to set other history files to backup, the file has the following naming convention:
+Users can also use =-f= option to set other history files to backup, the history file has the following naming convention:
 | Browser | History Filename |
 |---------+------------------|
 | Chrome  | History          |
 | Firefox | places.sqlite    |
 | Safari  | History.db       |
+#+begin_src bash
+# -f can be used multiple times
+onehistory backup -f ~/some-dir/History.db -f ~/another-dir/places.sqlite
+#+end_src
 
 ** Serve
 After backup browser history into 1History, the next step is to visualize those data.

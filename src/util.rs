@@ -19,26 +19,26 @@ lazy_static! {
         if let Some(home) = home_dir() {
             m.insert(
                 "chrome-linux",
-                join_path(home.clone(), ".config/google-chrome/Default/History"),
+                join_path(home.clone(), ".config/google-chrome/*/History"),
             );
             m.insert(
                 "chrome-macos",
                 join_path(
                     home.clone(),
-                    "Library/Application Support/Google/Chrome/Default/History",
+                    "Library/Application Support/Google/Chrome/*/History",
                 ),
             );
             m.insert(
                 "chrome-windows",
                 join_path(
                     home.clone(),
-                    "AppData/Local/Google/Chrome/User Data/Default/History",
+                    "AppData/Local/Google/Chrome/User Data/*/History",
                 ),
             );
             // Firefox
             m.insert(
                 "firefox-linux",
-                join_path(home.clone(), ".mozilla/firefox/*.default/places.sqlite"),
+                join_path(home.clone(), ".mozilla/firefox/*/places.sqlite"),
             );
             m.insert("firefox-macos", join_path(home.clone(), "Library/Application Support/Firefox/Profiles/*/places.sqlite"));
             m.insert(
