@@ -10,16 +10,18 @@
 [[https://github.com/1History/1History/actions/workflows/CI.yml][https://github.com/1History/1History/actions/workflows/CI.yml/badge.svg]]
 
 #+begin_quote
-All your history in one place.
+All your history in one file.
 #+end_quote
 
-1History is a command line tool to backup your histories of different browsers into one place.
+1History is a command line tool to backup your histories of different browsers into one file, and more! 📊
+
+[[https://www.producthunt.com/posts/1history?utm_source=badge-review&utm_medium=badge&utm_souce=badge-1history#discussion-body][https://api.producthunt.com/widgets/embed-image/v1/review.svg?post_id=329191&theme=light]]
 
 * Features
-- Support Chrome/Firefox/Safari on macOS/Linux/Windows
 - Rich dashboards to visualize your history
 - Export as CSV file
 - Entirely offline, No need to worry about privacy leaks
+- Support Chrome/Firefox/Safari on macOS/Linux/Windows
 - Well-designed schemas to avoid history duplication when backup multiple times
 - No NPM, 1History is a single binary built mainly in Rust🦀
 
