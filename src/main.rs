@@ -80,9 +80,12 @@ fn main() {
 }
 
 fn show() -> Result<()> {
+    let mut cnt = 0;
     for f in detect_history_files() {
-        info!("found history_file {}", f);
+        cnt += 1;
+        info!("found:{}", f);
     }
+    info!("Total:{cnt}");
     Ok(())
 }
 
@@ -90,7 +93,7 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
     let (start, end) = full_timerange();
     debug!("start:{}, end:{}", start, end);
 
-    let db = Database::open(db_file).context("open dst db")?;
+    let db = Database::open(db_file).context("open 1History DB")?;
 
     let mut found = 0;
     let mut total_affected = 0;

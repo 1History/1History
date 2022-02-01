@@ -2,7 +2,7 @@ use std::{collections::HashMap, fmt::Display};
 
 use crate::types::{SourceName, VisitDetail};
 use anyhow::{bail, Context, Result};
-use log::info;
+use log::debug;
 use rusqlite::{named_params, Connection, OpenFlags, ToSql};
 
 pub struct Source {
@@ -75,13 +75,13 @@ impl Source {
 
     pub fn select(
         &self,
-        inclusive_start: i64,
-        exclusive_end: i64,
+        start: i64,
+        end: i64,
     ) -> Result<Box<dyn Iterator<Item = VisitDetail>>> {
         match self.name {
-            SourceName::Firefox => self.select_firefox(inclusive_start, exclusive_end),
-            SourceName::Safari => self.select_safari(inclusive_start, exclusive_end),
-            SourceName::Chrome => self.select_chrome(inclusive_start, exclusive_end),
+            SourceName::Firefox => self.select_firefox(start, end),
+            SourceName::Safari => self.select_safari(start, end),
+            SourceName::Chrome => self.select_chrome(start, end),
         }
     }
 
@@ -170,7 +170,8 @@ ORDER BY
         T: PartialOrd + ToSql + Display,
     {
         let name = format!("{:?}", self.name());
-        info!("select from {name}, start:{start}, end:{end}");
+        debug!("select from {name}, start:{start}, end:{end}");
+
         let mut stat = self.conn.prepare(sql_tmpl)?;
         let rows = stat.query_map(
             named_params! {

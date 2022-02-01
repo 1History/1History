@@ -1,9 +1,9 @@
 [package]
 name = "onehistory"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Jiacai Liu <jiacai2050+1history@gmail.com>"]
-description = "All your history in one place"
+description = "All your history in one file"
 homepage = "https://github.com/1History/1History"
 repository = "https://github.com/1History/1History"
 keywords = ["cli", "history", "backup", "browser"]

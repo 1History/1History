@@ -14,9 +14,11 @@ const OS_TYPE: &str = std::env::consts::OS;
 lazy_static! {
     pub static ref DEFAULT_DB_FILE: String = default_location("onehistory.db");
     pub static ref DEFAULT_CSV_FILE: String = default_location(&format!("onehistory-{}.csv", unixepoch_as_ymd(tomorrow_midnight()-1)));
+
     static ref DEFAULT_PROFILES: HashMap<&'static str, String> = {
         let mut m = HashMap::new();
         if let Some(home) = home_dir() {
+            // Google Chrome
             m.insert(
                 "chrome-linux",
                 join_path(home.clone(), ".config/google-chrome/*/History"),
@@ -35,7 +37,7 @@ lazy_static! {
                     "AppData/Local/Google/Chrome/User Data/*/History",
                 ),
             );
-            // Firefox
+            // Mozilla Firefox
             m.insert(
                 "firefox-linux",
                 join_path(home.clone(), ".mozilla/firefox/*/places.sqlite"),
