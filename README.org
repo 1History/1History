@@ -83,7 +83,8 @@ Users can also use =-f= option to set other history files to backup, the history
 | Safari  | History.db       |
 #+begin_src bash
 # -f can be used multiple times
-onehistory backup -f ~/some-dir/History.db -f ~/another-dir/places.sqlite
+# -d is required when doing backup with browsers open
+onehistory backup -d -f ~/some-dir/History.db -f ~/another-dir/places.sqlite
 #+end_src
 
 ** Serve
