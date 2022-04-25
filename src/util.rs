@@ -13,45 +13,45 @@ const OS_TYPE: &str = std::env::consts::OS;
 
 lazy_static! {
     pub static ref DEFAULT_DB_FILE: String = default_location("onehistory.db");
-    pub static ref DEFAULT_CSV_FILE: String = default_location(&format!("onehistory-{}.csv", unixepoch_as_ymd(tomorrow_midnight()-1)));
-
+    pub static ref DEFAULT_CSV_FILE: String = default_location(&format!(
+        "onehistory-{}.csv",
+        unixepoch_as_ymd(tomorrow_midnight() - 1)
+    ));
     static ref DEFAULT_PROFILES: HashMap<&'static str, String> = {
         let mut m = HashMap::new();
         if let Some(home) = home_dir() {
-            // Google Chrome
-            m.insert(
-                "chrome-linux",
-                join_path(home.clone(), ".config/google-chrome/*/History"),
-            );
-            m.insert(
-                "chrome-macos",
-                join_path(
-                    home.clone(),
+            let dirs = vec![
+                // Chrome
+                ("chrome-linux", ".config/google-chrome/*/History"),
+                (
+                    "chrome-macos",
                     "Library/Application Support/Google/Chrome/*/History",
                 ),
-            );
-            m.insert(
-                "chrome-windows",
-                join_path(
-                    home.clone(),
+                (
+                    "chrome-windows",
                     "AppData/Local/Google/Chrome/User Data/*/History",
                 ),
-            );
-            // Mozilla Firefox
-            m.insert(
-                "firefox-linux",
-                join_path(home.clone(), ".mozilla/firefox/*/places.sqlite"),
-            );
-            m.insert("firefox-macos", join_path(home.clone(), "Library/Application Support/Firefox/Profiles/*/places.sqlite"));
-            m.insert(
-                "firefox-windows",
-                join_path(
-                    home.clone(),
+                // Firefox
+                ("firefox-linux", ".mozilla/firefox/*/places.sqlite"),
+                (
+                    "firefox-macos",
+                    "Library/Application Support/Firefox/Profiles/*/places.sqlite",
+                ),
+                (
+                    "firefox-windows",
                     "AppData/Roaming/Mozilla/Firefox/Profiles/*/places.sqlite",
                 ),
-            );
-            // Safari
-            m.insert("safari-macos", join_path(home, "Library/Safari/History.db"));
+                // Safari
+                ("safari-macos", "Library/Safari/History.db"),
+                // Brave
+                ("brave-macos", "Library/Application Support/BraveSoftware/Brave-Browser/*/History"),
+                ("brave-linux", ".config/BraveSoftware/Brave-Browser/*/History"),
+                ("brave-windows", "AppData/Local/BraveSoftware/Brave-Browser/*/History"),
+            ];
+
+            for (browser, dir) in dirs {
+                m.insert(browser, join_path(home.clone(), dir));
+            }
         }
         m
     };
@@ -59,7 +59,7 @@ lazy_static! {
 
 pub fn detect_history_files() -> Vec<String> {
     let mut files = Vec::new();
-    let browsers = vec!["safari", "chrome", "firefox"];
+    let browsers = vec!["safari", "chrome", "firefox", "brave"];
     for b in browsers {
         let k = format!("{b}-{OS_TYPE}");
         debug!("detect {k}...");
