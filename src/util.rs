@@ -24,6 +24,10 @@ lazy_static! {
                 // Chrome
                 ("chrome-linux", ".config/google-chrome/*/History"),
                 (
+                    "chrome-flatpak-linux",
+                    ".var/app/com.google.Chrome/config/google-chrome/*/History",
+                ),
+                (
                     "chrome-macos",
                     "Library/Application Support/Google/Chrome/*/History",
                 ),
@@ -31,8 +35,24 @@ lazy_static! {
                     "chrome-windows",
                     "AppData/Local/Google/Chrome/User Data/*/History",
                 ),
+                // Chromium
+                ("chromium-linux", ".config/chromium/*/History"),
+                (
+                    "chromium-flatpak-linux",
+                    ".var/app/org.chromium.Chromium/config/chromium/*/History",
+                ),
+                // Edge
+                ("edge-linux", ".config/microsoft-edge/*/History"),
+                (
+                    "edge-flatpak-linux",
+                    ".var/app/com.microsoft.Edge/config/microsoft-edge/*/History",
+                ),
                 // Firefox
                 ("firefox-linux", ".mozilla/firefox/*/places.sqlite"),
+                (
+                    "firefox-flatpak-linux",
+                    ".var/app/org.mozilla.firefox/.mozilla/firefox/*/places.sqlite",
+                ),
                 (
                     "firefox-macos",
                     "Library/Application Support/Firefox/Profiles/*/places.sqlite",
@@ -46,6 +66,10 @@ lazy_static! {
                 // Brave
                 ("brave-macos", "Library/Application Support/BraveSoftware/Brave-Browser/*/History"),
                 ("brave-linux", ".config/BraveSoftware/Brave-Browser/*/History"),
+                (
+                    "brave-flatpak-linux",
+                    ".var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/*/History",
+                ),
                 ("brave-windows", "AppData/Local/BraveSoftware/Brave-Browser/*/History"),
             ];
 
@@ -59,18 +83,13 @@ lazy_static! {
 
 pub fn detect_history_files() -> Vec<String> {
     let mut files = Vec::new();
-    let browsers = vec!["safari", "chrome", "firefox", "brave"];
-    for b in browsers {
-        let k = format!("{b}-{OS_TYPE}");
+    for (k, v) in DEFAULT_PROFILES.clone() {
         debug!("detect {k}...");
-        if let Some(pattern) = DEFAULT_PROFILES.get(k.as_str()) {
-            debug!("find {pattern} in {k}...");
-            if let Ok(entries) = glob::glob(pattern) {
-                for e in entries {
-                    match e {
-                        Ok(file) => files.push(file.into_os_string().into_string().unwrap()),
-                        Err(e) => debug!("glob err:{:?}", e),
-                    }
+        if let Ok(entries) = glob::glob(&v) {
+            for e in entries {
+                match e {
+                    Ok(file) => files.push(file.into_os_string().into_string().unwrap()),
+                    Err(e) => debug!("glob err:{:?}", e),
                 }
             }
         }
