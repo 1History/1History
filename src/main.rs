@@ -1,11 +1,13 @@
 mod database;
 mod export;
+mod progress;
 mod source;
 mod types;
 mod util;
 mod web;
 
 use crate::database::Database;
+use crate::progress::TUICollector;
 use crate::source::Source;
 use crate::util::{full_timerange, DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
 use anyhow::{Context, Error, Result};
@@ -79,7 +81,8 @@ fn main() {
     }
 }
 
-fn show() -> Result<()> {
+fn show(db_file: String) -> Result<()> {
+    info!("Local database:{}", db_file);
     let mut cnt = 0;
     for f in detect_history_files() {
         cnt += 1;
@@ -99,13 +102,16 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
     let mut total_affected = 0;
     let mut total_duplicated = 0;
     let mut persist = |history_file: String| {
-        let s = Source::open(history_file).context("open")?;
+        let s = Source::open(&history_file).context("open")?;
         let rows = s.select(start, end).context("select")?.collect::<Vec<_>>();
         debug!("{:?} select {} histories", s.name(), rows.len());
         found += rows.len();
 
+        info!("Begin backup {}...", &history_file);
+        let collector = TUICollector::new(rows.len() as u64);
         if !dry_run {
-            let (affected, duplicated) = db.persist(s.path(), rows).context("persist")?;
+            let (affected, duplicated) =
+                db.persist(s.path(), rows, collector).context("persist")?;
             debug!(
                 "{:?} affected:{}, duplicated:{}",
                 s.name(),
@@ -115,6 +121,8 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
             total_affected += affected;
             total_duplicated += duplicated;
         };
+        info!("Finish backup {}", &history_file);
+
         Ok::<_, Error>(())
     };
     for his_file in history_files {
@@ -129,7 +137,7 @@ fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<
 
 fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Command::Show => show(),
+        Command::Show => show(cli.db_file),
         Command::Export(Export { csv_file }) => export_csv(csv_file, cli.db_file),
         Command::Serve(Serve { addr }) => web::serve(addr, cli.db_file),
         Command::Backup(Backup {

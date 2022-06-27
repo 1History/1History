@@ -1,4 +1,5 @@
 use crate::{
+    progress::ProgressCollector,
     types::VisitDetail,
     util::{domain_from, ymd_midnight},
 };
@@ -145,11 +146,24 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
         Ok((affected, duplicated))
     }
 
-    pub fn persist(&self, src_path: &str, details: Vec<VisitDetail>) -> Result<(usize, usize)> {
+    pub fn persist(
+        &self,
+        src_path: &str,
+        details: Vec<VisitDetail>,
+        collector: impl ProgressCollector,
+    ) -> Result<(usize, usize)> {
         let mut i = 0;
         let mut batch = None; // Use Option so we can take it out later
         let mut affected = 0;
         let mut duplicated = 0;
+        let mut persist_helper = |batch: Vec<HistoryVisit>| -> Result<()> {
+            let len = batch.len();
+            let (a, d) = self.persist_visits(src_path, batch)?;
+            affected += a;
+            duplicated += d;
+            collector.inc(len as u64);
+            Ok(())
+        };
         for VisitDetail {
             url,
             title,
@@ -166,16 +180,13 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
                 visit_type,
             });
             if i % self.persist_batch == 0 {
-                let (a, d) = self.persist_visits(src_path, batch.take().unwrap())?;
-                affected += a;
-                duplicated += d;
+                persist_helper(batch.take().unwrap())?;
             }
         }
         if batch.is_some() {
-            let (a, d) = self.persist_visits(src_path, batch.take().unwrap())?;
-            affected += a;
-            duplicated += d;
+            persist_helper(batch.take().unwrap())?;
         }
+        collector.finish();
 
         Ok((affected, duplicated))
     }
