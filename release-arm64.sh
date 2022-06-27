@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# run this script on m1-based macOS
 set -ex
 
 v=$(grep version Cargo.toml | head -1 | awk '{print $3}' | tr -d '"')

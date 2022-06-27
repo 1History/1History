@@ -3,3 +3,6 @@ release-arm64:
 
 serve:
 	cargo run -- serve
+
+publish:
+	cargo publish --registry github --token $(CARGO_REGISTRY_TOKEN)
