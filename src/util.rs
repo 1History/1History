@@ -9,8 +9,6 @@ use std::collections::HashMap;
 use std::env::temp_dir;
 use std::path::PathBuf;
 
-const OS_TYPE: &str = std::env::consts::OS;
-
 lazy_static! {
     pub static ref DEFAULT_DB_FILE: String = default_location("onehistory.db");
     pub static ref DEFAULT_CSV_FILE: String = default_location(&format!(
@@ -83,9 +81,9 @@ lazy_static! {
 
 pub fn detect_history_files() -> Vec<String> {
     let mut files = Vec::new();
-    for (k, v) in DEFAULT_PROFILES.clone() {
-        debug!("detect {k}...");
-        if let Ok(entries) = glob::glob(&v) {
+    for (browser, pattern) in DEFAULT_PROFILES.iter() {
+        debug!("detect {}...", browser);
+        if let Ok(entries) = glob::glob(pattern) {
             for e in entries {
                 match e {
                     Ok(file) => files.push(file.into_os_string().into_string().unwrap()),

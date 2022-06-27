@@ -7,7 +7,7 @@ on:
     branches:
       - master
     paths:
-      - src
+      - '**.rs'
 
 jobs:
   lint_and_test:

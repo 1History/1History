@@ -105,7 +105,7 @@ cargo install onehistory
 
 
 * Changelog
-See [[file:CHANGELOG.org]]
+See [[file:CHANGELOG.org][CHANGELOG]]
 * FAQ
 - =Error code 5: The database file is locked= :: This error happens if your browser is opened during backup, as SQLite allow only one open connection.
 
