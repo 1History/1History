@@ -11,10 +11,17 @@ on:
 
 jobs:
   lint_and_test:
-    timeout-minutes: 10
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      # https://github.com/Swatinem/rust-cache/blob/90429b3dea365e9a1b0cb82d7f98aabf3089dc63/.github/workflows/simple.yml#L21
+      # When rustup is updated, it tries to replace its binary, which on Windows is somehow locked.
+      # This can result in the CI failure, see: https://github.com/rust-lang/rustup/issues/3029
+      - run: |
+          rustup set auto-self-update disable
+          rustup toolchain install stable --profile minimal
+      - uses: Swatinem/rust-cache@v2
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
         with:

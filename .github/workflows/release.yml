@@ -1,11 +1,16 @@
+name: 'Release'
+
 on:
   workflow_dispatch:
   release:
     types: [created]
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   release:
-    timeout-minutes: 10
+    timeout-minutes: 30
     name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
     strategy:
@@ -14,6 +19,13 @@ jobs:
         target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
     steps:
       - uses: actions/checkout@master
+      # https://github.com/Swatinem/rust-cache/blob/90429b3dea365e9a1b0cb82d7f98aabf3089dc63/.github/workflows/simple.yml#L21
+      # When rustup is updated, it tries to replace its binary, which on Windows is somehow locked.
+      # This can result in the CI failure, see: https://github.com/rust-lang/rustup/issues/3029
+      - run: |
+          rustup set auto-self-update disable
+          rustup toolchain install stable --profile minimal
+      - uses: Swatinem/rust-cache@v2
       - name: Compile and release
         uses: rust-build/rust-build.action@latest
         env:
