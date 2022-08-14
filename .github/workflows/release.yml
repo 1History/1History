@@ -25,7 +25,17 @@ jobs:
       - run: |
           rustup set auto-self-update disable
           rustup toolchain install stable --profile minimal
-      - uses: Swatinem/rust-cache@v2
+      - name: Cache Crates
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./target
+            ~/.cargo
+          key: rust-release-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+          restore-keys: |
+            rust-release-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+            rust-release-${{ runner.os }}
+            rust-
       - name: Compile and release
         uses: rust-build/rust-build.action@latest
         env:

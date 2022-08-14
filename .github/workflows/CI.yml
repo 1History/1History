@@ -21,7 +21,17 @@ jobs:
       - run: |
           rustup set auto-self-update disable
           rustup toolchain install stable --profile minimal
-      - uses: Swatinem/rust-cache@v2
+      - name: Cache Crates
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./target
+            ~/.cargo
+          key: rust-ci-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+          restore-keys: |
+            rust-ci-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+            rust-ci-${{ runner.os }}
+            rust-
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
         with:
