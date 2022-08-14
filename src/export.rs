@@ -31,7 +31,7 @@ pub fn export_csv(csv_file: String, db_file: String) -> Result<()> {
             format!(
                 "{},{},{},{}\n",
                 unixepoch_as_ymdhms(visit.visit_time),
-                visit.title.replace(",", ""),
+                visit.title.replace(',', ""),
                 visit.url,
                 visit.visit_type
             )

@@ -218,7 +218,7 @@ ON CONFLICT (data_path)
         kw.map_or_else(
             || "1".to_string(),
             |v| {
-                let v = v.replace("'", "");
+                let v = v.replace('\'', "");
                 format!("(url like '%{v}%' or title like '%{v}%')")
             },
         )
