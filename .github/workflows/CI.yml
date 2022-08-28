@@ -23,15 +23,17 @@ jobs:
           rustup toolchain install stable --profile minimal
       - name: Cache Crates
         uses: actions/cache@v3
+        env:
+          cache-name: rust
         with:
           path: |
             ./target
             ~/.cargo
-          key: rust-ci-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-debug-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            rust-ci-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
-            rust-ci-${{ runner.os }}
-            rust-
+            ${{ runner.os }}-${{ env.cache-name }}-debug-${{ hashFiles('rust-toolchain.toml') }}-
+            ${{ runner.os }}-${{ env.cache-name }}-debug-
+            ${{ runner.os }}-${{ env.cache-name }}
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
         with:
