@@ -14,6 +14,7 @@ use anyhow::{Context, Error, Result};
 use clap::{Parser, Subcommand};
 use export::export_csv;
 use log::{debug, error, info, LevelFilter};
+use std::io::Write;
 use util::detect_history_files;
 
 #[derive(Parser, Debug)]
@@ -74,7 +75,20 @@ fn main() {
     } else {
         LevelFilter::Info
     };
-    env_logger::Builder::new().filter_level(level).init();
+    env_logger::Builder::new()
+        .filter_level(level)
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "{} {} [{}:{}] {}",
+                chrono::Local::now().format("%Y-%m-%dT%H:%M:%S.3f"),
+                buf.default_styled_level(record.level()),
+                record.file().unwrap_or("unknown"),
+                record.line().unwrap_or(0),
+                record.args()
+            )
+        })
+        .init();
 
     if let Err(e) = run(cli) {
         error!("Run failed, err:{:?}", e);

@@ -185,6 +185,8 @@ impl Server {
         let code;
         let message;
 
+        error!("{:?}", err);
+
         if err.is_not_found() {
             code = StatusCode::NOT_FOUND;
             message = "NOT_FOUND";
@@ -195,7 +197,6 @@ impl Server {
             code = StatusCode::BAD_REQUEST;
             message = e;
         } else {
-            error!("unhandled rejection: {:?}", err);
             code = StatusCode::INTERNAL_SERVER_ERROR;
             message = "UNHANDLED_REJECTION";
         }
