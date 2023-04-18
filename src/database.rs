@@ -24,7 +24,7 @@ pub(crate) struct Database {
 
 impl Database {
     pub fn open(sqlite_datafile: String) -> Result<Database> {
-        let conn = Connection::open(&sqlite_datafile)?;
+        let conn = Connection::open(sqlite_datafile)?;
         let db = Self {
             conn: Mutex::new(conn),
             persist_batch: DEFAULT_BATCH_NUM,
@@ -122,7 +122,7 @@ INSERT INTO onehistory_visits (item_id, visit_time, visit_type)
             visit_type,
         } in batch
         {
-            match tx.execute(sql, &[&item_id, &visit_time, &visit_type]) {
+            match tx.execute(sql, [&item_id, &visit_time, &visit_type]) {
                 Ok(ret) => affected += ret,
                 Err(e) => {
                     if let sqlError::SqliteFailure(ffi_err, _msg) = &e {
