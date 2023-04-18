@@ -1,9 +1,6 @@
 use anyhow::{Context, Result};
 use log::{debug, info};
-use std::{
-    fs::OpenOptions,
-    io::{BufWriter, Write},
-};
+use std::{fs::OpenOptions, io::BufWriter};
 
 use crate::{
     database::Database,
@@ -21,22 +18,18 @@ pub fn export_csv(csv_file: String, db_file: String) -> Result<()> {
         .truncate(true)
         .open(&csv_file)
         .context(csv_file.clone())?;
-    let mut buf_writer = BufWriter::new(f);
+    let mut csv_writer = csv::Writer::from_writer(BufWriter::new(f));
 
-    buf_writer.write_all(b"time,title,url,visit_type\n")?;
+    csv_writer.write_record(&["time", "title", "url", "visit_type"])?;
     let visits = db.select_visits(start, end, None)?;
     let len = visits.len();
     for visit in visits {
-        buf_writer.write_all(
-            format!(
-                "{},{},{},{}\n",
-                unixepoch_as_ymdhms(visit.visit_time),
-                visit.title.replace(',', ""),
-                visit.url,
-                visit.visit_type
-            )
-            .as_bytes(),
-        )?;
+        csv_writer.write_record(vec![
+            unixepoch_as_ymdhms(visit.visit_time),
+            visit.title,
+            visit.url,
+            visit.visit_type.to_string(),
+        ])?;
     }
     info!("Export {len} histories in {csv_file}.");
 

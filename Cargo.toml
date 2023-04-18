@@ -1,8 +1,8 @@
 [package]
 name = "onehistory"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
-authors = ["Jiacai Liu <jiacai2050+1history@gmail.com>"]
+authors = ["Jiacai Liu <dev@liujiacai.net>"]
 description = "All your history in one file"
 homepage = "https://github.com/1History/1History"
 repository = "https://github.com/1History/1History"
@@ -29,3 +29,4 @@ glob = "0.3.0"
 chrono = "0.4"
 regex = "1"
 indicatif = "0.16.2"
+csv = "1.2.1"
