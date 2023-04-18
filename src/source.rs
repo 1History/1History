@@ -14,7 +14,7 @@ pub struct Source {
 impl Source {
     pub fn open(path: &str) -> Result<Source> {
         let flags = OpenFlags::SQLITE_OPEN_READ_WRITE;
-        let conn = Connection::open_with_flags(&path, flags).context(path.to_string())?;
+        let conn = Connection::open_with_flags(path, flags).context(path.to_string())?;
         let name = Self::detect_name(&conn).context(format!("detect {path}"))?;
         Ok(Source {
             path: path.to_string(),

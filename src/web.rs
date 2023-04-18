@@ -87,7 +87,7 @@ impl Server {
                 ymd_ts => start,
                 visit_details => visit_details,
                 version => clap::crate_version!(),
-                keyword => keyword.unwrap_or_else(|| "".to_string()),
+                keyword => keyword.unwrap_or_default(),
             ))
             .map_err(|e| ServerError::from(Error::from(e)))?;
 
@@ -145,7 +145,7 @@ impl Server {
                 daily_counts => daily_counts,
                 title_top100 => title_top100,
                 domain_top100 => domain_top100,
-                keyword => keyword.unwrap_or_else(|| "".to_string()),
+                keyword => keyword.unwrap_or_default(),
                 version => clap::crate_version!(),
             ))
             .map_err(|e| ServerError::from(Error::from(e)))?;
