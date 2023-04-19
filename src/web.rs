@@ -118,7 +118,7 @@ impl Server {
         let (min_time, max_time) = match db.select_min_max_time() {
             Ok(v) => v,
             Err(e) => {
-                warn!("Select min_max time failed, err:{e:?}");
+                warn!("Select min_max time failed and fallback to default, msg:{e:?}");
                 full_timerange()
             }
         };
