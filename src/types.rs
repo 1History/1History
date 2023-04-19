@@ -37,7 +37,9 @@ pub struct ServerError {
 
 impl From<Error> for ServerError {
     fn from(err: Error) -> Self {
-        Self { e: err.to_string() }
+        Self {
+            e: format!("{err:#}"),
+        }
     }
 }
 
@@ -50,7 +52,9 @@ pub struct ClientError {
 
 impl From<Error> for ClientError {
     fn from(err: Error) -> Self {
-        Self { e: err.to_string() }
+        Self {
+            e: format!("{err:#}"),
+        }
     }
 }
 

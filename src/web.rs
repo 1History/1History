@@ -2,12 +2,12 @@ use crate::{
     database::Database,
     types::{ClientError, DetailsQueryParams, ErrorMessage, IndexQueryParams, ServerError},
     util::{
-        minijinja_format_as_hms, minijinja_format_as_ymd, minijinja_format_title,
+        full_timerange, minijinja_format_as_hms, minijinja_format_as_ymd, minijinja_format_title,
         tomorrow_midnight, ymd_midnight,
     },
 };
 use anyhow::{Context, Error, Result};
-use log::error;
+use log::{error, warn};
 use minijinja::{context, Environment};
 use rust_embed::RustEmbed;
 use std::{convert::Infallible, net::SocketAddr, sync::Arc};
@@ -115,10 +115,14 @@ impl Server {
             .select_daily_count(start, end, keyword.clone())
             .context("daily_count")
             .map_err(ServerError::from)?;
-        let (min_time, max_time) = db
-            .select_min_max_time()
-            .context("min_max_time")
-            .map_err(ServerError::from)?;
+        let (min_time, max_time) = match db.select_min_max_time() {
+            Ok(v) => v,
+            Err(e) => {
+                warn!("Select min_max time failed and fallback to default, msg:{e:?}");
+                full_timerange()
+            }
+        };
+
         let title_top100 = db
             .select_title_top100(start, end, keyword.clone())
             .context("title_top100")
@@ -195,7 +199,6 @@ impl Server {
             code = StatusCode::BAD_REQUEST;
             message = e;
         } else {
-            error!("unhandled rejection: {:?}", err);
             code = StatusCode::INTERNAL_SERVER_ERROR;
             message = "UNHANDLED_REJECTION";
         }
@@ -204,6 +207,10 @@ impl Server {
             message: message.into(),
             code: code.as_u16(),
         });
+
+        if code != 404 {
+            error!("{:?}", err);
+        }
 
         Ok(warp::reply::with_status(json, code))
     }
