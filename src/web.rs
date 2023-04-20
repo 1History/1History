@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use anyhow::{Context, Error, Result};
-use log::{error, warn};
+use log::{error, info, warn};
 use minijinja::{context, Environment};
 use rust_embed::RustEmbed;
 use std::{convert::Infallible, net::SocketAddr, sync::Arc};
@@ -180,6 +180,7 @@ impl Server {
 
         let rt = Runtime::new().context("tokio runtime build")?;
         rt.block_on(async {
+            info!("Start HTTP server on {}...", self.addr);
             warp::serve(routes).run(self.addr).await;
         });
         Ok(())

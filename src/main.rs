@@ -10,6 +10,7 @@ mod web;
 use crate::util::{DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use env_logger::Env;
 use export::export_csv;
 use log::{debug, error, info, LevelFilter};
 use std::io::Write;
@@ -66,12 +67,16 @@ struct Export {
     csv_file: String,
 }
 
+// https://stackoverflow.com/a/27841363/2163429
+const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+
 fn main() {
     let cli = Cli::parse();
 
-    let mut builder = env_logger::Builder::from_default_env();
+    let mut builder =
+        env_logger::Builder::from_env(Env::default().default_filter_or(format!("{PKG_NAME}=info")));
     if cli.verbose {
-        builder.filter_level(LevelFilter::Debug);
+        builder.filter(Some(PKG_NAME), LevelFilter::Debug);
     };
     builder
         .format(|buf, record| {
