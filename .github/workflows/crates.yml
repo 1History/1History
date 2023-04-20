@@ -24,10 +24,9 @@ jobs:
           path: |
             ./target
             ~/.cargo
-          key: rust-release-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.toml') }}
+          key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            rust-release-${{ runner.os }}
-            rust-
+            ${{ runner.os }}
       - name: Publish on crates.io
         run: cargo publish
         env:

@@ -5,7 +5,7 @@ use crate::progress::TUICollector;
 use crate::source::Source;
 use crate::{database::Database, util::full_timerange};
 use anyhow::{Context, Error, Result};
-use log::{debug, error, info, warn};
+use log::{debug, info};
 
 pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<()> {
     let (start, end) = full_timerange();
