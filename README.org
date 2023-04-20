@@ -2,7 +2,6 @@
 #+DATE: 2022-01-23T20:21:06+0800
 #+AUTHOR: Jiacai Liu
 #+LANGUAGE: cn
-#+EMAIL: jiacai2050+org@gmail.com
 #+OPTIONS: toc:nil num:nil
 #+STARTUP: content
 
@@ -13,7 +12,7 @@
 All your history in one file.
 #+end_quote
 
-1History is a command line tool to backup your histories of different browsers into one file, and more! 📊
+1History is a command line tool to backup your different browser histories into one file, and visualize them!
 
 [[https://www.producthunt.com/posts/1history?utm_source=badge-review&utm_medium=badge&utm_souce=badge-1history#discussion-body][https://api.producthunt.com/widgets/embed-image/v1/review.svg?post_id=329191&theme=light]]
 
@@ -113,6 +112,6 @@ See [[file:CHANGELOG.org][CHANGELOG]]
 
 
 * LICENSE
-Copyright (c) 2022 Jiacai Liu <jiacai2050+1history@gmail.com>
+Copyright (c) 2022 Jiacai Liu <dev@liujiacai.net>
 
 1History is distributed under [[https://www.gnu.org/licenses/gpl-3.0.txt][GPL-3.0]] license.

@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - master
+      - main
     paths:
       - '**.rs'
 
@@ -23,17 +24,13 @@ jobs:
           rustup toolchain install stable --profile minimal
       - name: Cache Crates
         uses: actions/cache@v3
-        env:
-          cache-name: rust
         with:
           path: |
             ./target
             ~/.cargo
-          key: ${{ runner.os }}-${{ env.cache-name }}-debug-${{ hashFiles('rust-toolchain.toml') }}-${{ hashFiles('Cargo.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}-debug-${{ hashFiles('rust-toolchain.toml') }}-
-            ${{ runner.os }}-${{ env.cache-name }}-debug-
-            ${{ runner.os }}-${{ env.cache-name }}
+            ${{ runner.os }}
       - run: rustup component add clippy
       - uses: actions-rs/clippy-check@v1
         with:
