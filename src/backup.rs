@@ -17,7 +17,7 @@ pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Res
     let mut total_affected = 0;
     let mut total_duplicated = 0;
     let mut persist = |history_file: &str| {
-        let s = Source::open(&history_file).context("open")?;
+        let s = Source::open(history_file).context("open")?;
         let rows = s.select(start, end).context("select")?.collect::<Vec<_>>();
         debug!("{:?} select {} histories", s.name(), rows.len());
         found += rows.len();
@@ -44,7 +44,7 @@ pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Res
         if let Err(e) = persist(his_file) {
             let msg = format!("{e:?}");
             if msg.contains("The database file is locked") {
-                warn!("Open database directly failed, copy to temp and backup again");
+                debug!("Open database directly failed, copy to temp and backup again");
                 let mut tmp = match tempfile::NamedTempFile::new() {
                     Ok(f) => f,
                     Err(_) => continue,
@@ -54,13 +54,13 @@ pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Res
                     Err(_) => continue,
                 };
                 if let Err(e) = tmp.write_all(&body) {
-                    warn!("Copy to backup file failed, msg:{e}");
+                    debug!("Copy to backup file failed, msg:{e}");
                     continue;
                 }
                 let path = tmp.into_temp_path();
                 let path = path.to_string_lossy();
                 if let Err(e) = persist(&path) {
-                    error!("{} persist failed, backup:{}, err: {:?}", his_file, path, e);
+                    debug!("{} persist failed, backup:{}, err: {:?}", his_file, path, e);
                 }
             }
         }

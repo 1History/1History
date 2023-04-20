@@ -68,13 +68,12 @@ struct Export {
 
 fn main() {
     let cli = Cli::parse();
-    let level = if cli.verbose {
-        LevelFilter::Debug
-    } else {
-        LevelFilter::Info
+
+    let mut builder = env_logger::Builder::from_default_env();
+    if cli.verbose {
+        builder.filter_level(LevelFilter::Debug);
     };
-    env_logger::Builder::new()
-        .filter_level(level)
+    builder
         .format(|buf, record| {
             writeln!(
                 buf,
@@ -88,6 +87,7 @@ fn main() {
         })
         .init();
 
+    debug!("args:{cli:?}");
     if let Err(e) = run(cli) {
         error!("Run failed, err:{:?}", e);
     }
@@ -114,13 +114,13 @@ fn run(cli: Cli) -> Result<()> {
             disable_detect,
             dry_run,
         }) => {
-            let mut fs = if disable_detect {
+            let mut files = if disable_detect {
                 Vec::new()
             } else {
                 detect_history_files()
             };
-            fs.extend(history_files);
-            backup::backup(fs, cli.db_file, dry_run)
+            files.extend(history_files);
+            backup::backup(files, cli.db_file, dry_run)
         }
     }
 }
