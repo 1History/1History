@@ -1,3 +1,4 @@
+mod backup;
 mod database;
 mod export;
 mod progress;
@@ -6,11 +7,8 @@ mod types;
 mod util;
 mod web;
 
-use crate::database::Database;
-use crate::progress::TUICollector;
-use crate::source::Source;
-use crate::util::{full_timerange, DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
-use anyhow::{Context, Error, Result};
+use crate::util::{DEFAULT_CSV_FILE, DEFAULT_DB_FILE};
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 use export::export_csv;
 use log::{debug, error, info, LevelFilter};
@@ -106,49 +104,6 @@ fn show(db_file: String) -> Result<()> {
     Ok(())
 }
 
-fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<()> {
-    let (start, end) = full_timerange();
-    debug!("start:{}, end:{}", start, end);
-
-    let db = Database::open(db_file).context("open 1History DB")?;
-
-    let mut found = 0;
-    let mut total_affected = 0;
-    let mut total_duplicated = 0;
-    let mut persist = |history_file: String| {
-        let s = Source::open(&history_file).context("open")?;
-        let rows = s.select(start, end).context("select")?.collect::<Vec<_>>();
-        debug!("{:?} select {} histories", s.name(), rows.len());
-        found += rows.len();
-
-        info!("Begin backup {}...", &history_file);
-        let collector = TUICollector::new(rows.len() as u64);
-        if !dry_run {
-            let (affected, duplicated) =
-                db.persist(s.path(), rows, collector).context("persist")?;
-            debug!(
-                "{:?} affected:{}, duplicated:{}",
-                s.name(),
-                affected,
-                duplicated
-            );
-            total_affected += affected;
-            total_duplicated += duplicated;
-        };
-        info!("Finish backup {}", &history_file);
-
-        Ok::<_, Error>(())
-    };
-    for his_file in history_files {
-        if let Err(e) = persist(his_file.clone()) {
-            error!("{} persist failed, err: {:?}", his_file, e);
-        }
-    }
-
-    info!("Summary\nFound:{found}, Imported:{total_affected}, Duplicated: {total_duplicated}");
-    Ok(())
-}
-
 fn run(cli: Cli) -> Result<()> {
     match cli.command {
         Command::Show => show(cli.db_file),
@@ -165,7 +120,7 @@ fn run(cli: Cli) -> Result<()> {
                 detect_history_files()
             };
             fs.extend(history_files);
-            backup(fs, cli.db_file, dry_run)
+            backup::backup(fs, cli.db_file, dry_run)
         }
     }
 }
