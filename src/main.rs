@@ -20,7 +20,7 @@ use util::detect_history_files;
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// Database path
-    #[clap(short, long, env("OH_DB_FILE"), default_value(&DEFAULT_DB_FILE))]
+    #[clap(short, long, env("OH_DB_FILE"), default_value(&**DEFAULT_DB_FILE))]
     db_file: String,
 
     #[clap(short, long)]
@@ -63,7 +63,7 @@ struct Serve {
 #[derive(Parser, Debug)]
 struct Export {
     /// Output cse file
-    #[clap(short, long, env("OH_EXPORT_CSV_FILE"), default_value(&DEFAULT_CSV_FILE))]
+    #[clap(short, long, env("OH_EXPORT_CSV_FILE"), default_value(&**DEFAULT_CSV_FILE))]
     csv_file: String,
 }
 

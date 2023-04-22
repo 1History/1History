@@ -13,7 +13,7 @@ license = "GPL-3.0"
 [dependencies]
 rusqlite = { version = "0.26.3", features = ["bundled"] }
 anyhow = { version = "1.0", features = ["backtrace"] }
-clap = { version = "3.0.9", features = ["derive", "env", "cargo"] }
+clap = { version = "4", features = ["derive", "env", "cargo"] }
 home = "0.5.3"
 lazy_static = "1.4.0"
 env_logger = "0.9.0"
