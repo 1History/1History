@@ -19,6 +19,7 @@ jobs:
         target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
     steps:
       - uses: actions/checkout@v4
+      - uses: jiacai2050/zigcc@main
       - uses: dtolnay/rust-toolchain@stable
       - name: Cache Crates
         uses: actions/cache@v3
@@ -29,9 +30,5 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}
-      - name: Compile and release
-        uses: rust-build/rust-build.action@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.org"
+      - run: |
+          zigcargo build --release --target ${{ matrix.target }}
