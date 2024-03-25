@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jiacai2050/zigcc@v1
+        with:
+          zig-version: 0.11.0
       - uses: dtolnay/rust-toolchain@stable
       - name: Cache Crates
         uses: actions/cache@v3
