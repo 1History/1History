@@ -33,3 +33,5 @@ jobs:
       - run: |
           rustup target add ${{ matrix.target }}
           zigcargo build --release --target ${{ matrix.target }}
+        env:
+          ZIGCC_LOG: 1
