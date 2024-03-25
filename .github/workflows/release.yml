@@ -18,10 +18,8 @@ jobs:
       matrix:
         target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
     steps:
-      - uses: actions/checkout@v2
-      - run: |
-          rustup set auto-self-update disable
-          rustup toolchain install stable --profile minimal
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - name: Cache Crates
         uses: actions/cache@v3
         with:

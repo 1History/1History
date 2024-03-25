@@ -14,10 +14,8 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - run: |
-          rustup set auto-self-update disable
-          rustup toolchain install stable --profile minimal
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - name: Cache Crates
         uses: actions/cache@v3
         with:

@@ -6,6 +6,9 @@
 #+STARTUP: content
 
 * master(unrelease)
+* v0.3.4(2024-03-25)
+** Bugfix
+- fix: log doesn't work
 * v0.3.3 (2022-04-20)
 ** New Features
 - If =The database file is locked= error arise when backup, copy original sqlite db to temp file, then backup again. [[https://github.com/1History/1History/pull/19][#19]]

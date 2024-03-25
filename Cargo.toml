@@ -1,6 +1,6 @@
 [package]
 name = "onehistory"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 authors = ["Jiacai Liu <dev@liujiacai.net>"]
 description = "All your history in one file"
