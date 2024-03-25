@@ -10,18 +10,19 @@ on:
     paths:
       - '**.rs'
 
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   lint_and_test:
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      # https://github.com/Swatinem/rust-cache/blob/90429b3dea365e9a1b0cb82d7f98aabf3089dc63/.github/workflows/simple.yml#L21
-      # When rustup is updated, it tries to replace its binary, which on Windows is somehow locked.
-      # This can result in the CI failure, see: https://github.com/rust-lang/rustup/issues/3029
-      - run: |
-          rustup set auto-self-update disable
-          rustup toolchain install stable --profile minimal
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
       - name: Cache Crates
         uses: actions/cache@v3
         with:
@@ -31,9 +32,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features -- -D warnings
-      - run: cargo test
+      - run: |
+          cargo clippy --all-targets --all-features
+          cargo fmt -- --check
+      - run: |
+          cargo test

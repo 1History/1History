@@ -3,7 +3,7 @@ use std::{collections::HashMap, fmt::Display};
 use crate::types::{SourceName, VisitDetail};
 use anyhow::{bail, Context, Result};
 use log::debug;
-use rusqlite::{named_params, Connection, OpenFlags, ToSql};
+use rusqlite::{named_params, Connection, OpenFlags, Row, ToSql};
 
 pub struct Source {
     path: String,
@@ -53,11 +53,12 @@ impl Source {
         // Error code 14: Unable to open the database file
         // https://github.com/groue/GRDB.swift/issues/415#issuecomment-485220857
         conn.pragma_update(None, "journal_mode", "DELETE")?;
+        let get_row = |row: &Row| {
+            let r: i64 = row.get(0)?;
+            Ok(r)
+        };
         for (sql, name) in detect_sqls {
-            match conn.query_row(sql, [], |row| {
-                let r: i64 = row.get(0)?;
-                Ok(r)
-            }) {
+            match conn.query_row(sql, [], get_row) {
                 Ok(_) => return Ok(name),
                 Err(e) if e.to_string().contains("no such table") => {
                     continue;

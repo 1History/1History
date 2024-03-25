@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS import_records (
             )
         };
         match query_id() {
-            Err(e) if e == rusqlite::Error::QueryReturnedNoRows => {
+            Err(rusqlite::Error::QueryReturnedNoRows) => {
                 let mut stat = conn.prepare(
                     r#"
     INSERT INTO "onehistory_urls" (url, title) VALUES(:url, :title);
@@ -303,6 +303,7 @@ FROM (
 "#,
             Self::keyword_to_like(keyword)
         );
+        debug!("Daily count sql: {sql}, start:{start}, end:{end}");
         let conn = self.conn.lock().unwrap();
         let mut stat = conn.prepare(&sql)?;
 

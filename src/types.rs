@@ -9,7 +9,7 @@ pub enum SourceName {
     Chrome,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct VisitDetail {
     pub url: String,
     pub title: String,
