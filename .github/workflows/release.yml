@@ -4,6 +4,15 @@ on:
   workflow_dispatch:
   release:
     types: [created]
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '.github/workflows/release.yml'
 
 env:
   CARGO_TERM_COLOR: always
@@ -19,6 +28,9 @@ jobs:
         target: [x86_64-pc-windows-gnu, x86_64-unknown-linux-musl, x86_64-apple-darwin]
     steps:
       - uses: actions/checkout@v4
+      - uses: jiacai2050/zigcc@main
+        with:
+          zig-version: master
       - uses: dtolnay/rust-toolchain@stable
       - name: Cache Crates
         uses: actions/cache@v3
@@ -29,9 +41,9 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}
-      - name: Compile and release
-        uses: rust-build/rust-build.action@latest
+      - run: |
+          rustup target add ${{ matrix.target }}
+          zigcargo build --release --target ${{ matrix.target }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
-          EXTRA_FILES: "README.org"
+          ZIGCC_LOG: 1
+          ZIGCC_BLACKLIST_FLAGS: "self-contained/rcrt1.o self-contained/crti.o"
