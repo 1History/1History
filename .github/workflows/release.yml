@@ -4,6 +4,15 @@ on:
   workflow_dispatch:
   release:
     types: [created]
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '.github/workflows/release.yml'
 
 env:
   CARGO_TERM_COLOR: always
@@ -37,3 +46,4 @@ jobs:
           zigcargo build --release --target ${{ matrix.target }}
         env:
           ZIGCC_LOG: 1
+          ZIGCC_BLACKLIST_FLAGS: "self-contained/rcrt1.o self-contained/crti.o"
