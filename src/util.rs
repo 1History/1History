@@ -48,6 +48,10 @@ lazy_static! {
                 // Firefox
                 ("firefox-linux", ".mozilla/firefox/*/places.sqlite"),
                 (
+                    "firefox-snap-linux",
+                    "snap/firefox/*/.mozilla/firefox/*/places.sqlite",
+                ),
+                (
                     "firefox-flatpak-linux",
                     ".var/app/org.mozilla.firefox/.mozilla/firefox/*/places.sqlite",
                 ),
