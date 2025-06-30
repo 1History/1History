@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 use home::home_dir;
 use lazy_static::lazy_static;
@@ -118,7 +119,8 @@ pub fn tomorrow_midnight() -> i64 {
 }
 
 pub fn ymd_midnight(ymd: &str) -> anyhow::Result<i64> {
-    let nd = NaiveDate::parse_from_str(ymd, r"%Y-%m-%d")?;
+    let nd = NaiveDate::parse_from_str(ymd, r"%Y-%m-%d")
+        .with_context(|| format!("Invalid format: {ymd}"))?;
     let dt = Local
         .from_local_datetime(&nd.and_hms_opt(0, 0, 0).unwrap())
         .unwrap();
