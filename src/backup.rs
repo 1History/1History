@@ -9,7 +9,7 @@ use log::{debug, info};
 
 pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Result<()> {
     let (start, end) = full_timerange();
-    debug!("files:{:?}, start:{}, end:{}", history_files, start, end);
+    debug!("files:{history_files:?}, start:{start}, end:{end}");
 
     let db = Database::open(db_file).context("open 1History DB")?;
 
@@ -60,7 +60,7 @@ pub fn backup(history_files: Vec<String>, db_file: String, dry_run: bool) -> Res
                 let path = tmp.into_temp_path();
                 let path = path.to_string_lossy();
                 if let Err(e) = persist(&path) {
-                    debug!("{} persist failed, backup:{}, err: {:?}", his_file, path, e);
+                    debug!("{his_file} persist failed, backup:{path}, err: {e:?}");
                 }
             }
         }

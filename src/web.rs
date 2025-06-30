@@ -210,7 +210,7 @@ impl Server {
         });
 
         if code != 404 {
-            error!("{:?}", err);
+            error!("{err:?}");
         }
 
         Ok(warp::reply::with_status(json, code))

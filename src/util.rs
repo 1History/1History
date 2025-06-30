@@ -1,5 +1,5 @@
 use anyhow::Context;
-use chrono::{Date, DateTime, FixedOffset, Local, NaiveDate, TimeZone, Utc};
+use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 use home::home_dir;
 use lazy_static::lazy_static;
 use log::debug;
@@ -86,12 +86,12 @@ lazy_static! {
 pub fn detect_history_files() -> Vec<String> {
     let mut files = Vec::new();
     for (browser, pattern) in DEFAULT_PROFILES.iter() {
-        debug!("detect {}...", browser);
+        debug!("detect {browser}...");
         if let Ok(entries) = glob::glob(pattern) {
             for e in entries {
                 match e {
                     Ok(file) => files.push(file.into_os_string().into_string().unwrap()),
-                    Err(e) => debug!("glob err:{:?}", e),
+                    Err(e) => debug!("glob err:{e:?}"),
                 }
             }
         }
@@ -111,38 +111,35 @@ fn default_location(filename: &str) -> String {
 }
 
 pub fn tomorrow_midnight() -> i64 {
-    let now = Local::today();
-    let dt: DateTime<Local> = now.and_hms(0, 0, 0);
+    let now = Local::now().date_naive();
+    let dt = Local
+        .from_local_datetime(&now.and_hms_opt(0, 0, 0).unwrap())
+        .unwrap();
     dt.timestamp_millis() + 24 * 3_600_000
 }
 
 pub fn ymd_midnight(ymd: &str) -> anyhow::Result<i64> {
-    let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").context("not %Y-%m-%d date")?;
-
-    lazy_static! {
-        static ref LOCAL_OFFSET: FixedOffset = *Local::now().offset();
-    }
-
-    let dc: Date<Local> = Date::from_utc(nd, *LOCAL_OFFSET);
-    Ok(dc.and_hms(0, 0, 0).timestamp_millis())
+    let nd = NaiveDate::parse_from_str(ymd, r"%Y-%m-%d")
+        .with_context(|| format!("Invalid format: {ymd}"))?;
+    let dt = Local
+        .from_local_datetime(&nd.and_hms_opt(0, 0, 0).unwrap())
+        .unwrap();
+    Ok(dt.timestamp_millis())
 }
 
 pub fn unixepoch_as_ymd(ts: i64) -> String {
-    let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<Local> = DateTime::from(utc);
-    dt.format("%Y-%m-%d").to_string()
+    let dt: DateTime<Local> = Utc.timestamp_opt(ts / 1000, 0).unwrap().into();
+    dt.format(r"%Y-%m-%d").to_string()
 }
 
 pub fn unixepoch_as_hms(ts: i64) -> String {
-    let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<Local> = DateTime::from(utc);
-    dt.format("%H:%M:%S").to_string()
+    let dt: DateTime<Local> = Utc.timestamp_opt(ts / 1000, 0).unwrap().into();
+    dt.format(r"%H:%M:%S").to_string()
 }
 
 pub fn unixepoch_as_ymdhms(ts: i64) -> String {
-    let utc = Utc.timestamp(ts / 1000, 0);
-    let dt: DateTime<Local> = DateTime::from(utc);
-    dt.format("%Y-%m-%d %H:%M:%S").to_string()
+    let dt: DateTime<Local> = Utc.timestamp_opt(ts / 1000, 0).unwrap().into();
+    dt.format(r"%Y-%m-%d %H:%M:%S").to_string()
 }
 
 pub fn minijinja_format_as_ymd(_state: &State, ts: i64) -> Result<String, minijinja::Error> {

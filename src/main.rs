@@ -94,16 +94,16 @@ fn main() {
 
     debug!("args:{cli:?}");
     if let Err(e) = run(cli) {
-        error!("Run failed, err:{:?}", e);
+        error!("Run failed, err:{e:?}");
     }
 }
 
 fn show(db_file: String) -> Result<()> {
-    info!("Local database:{}", db_file);
+    info!("Local database:{db_file}");
     let mut cnt = 0;
     for f in detect_history_files() {
         cnt += 1;
-        info!("found:{}", f);
+        info!("found:{f}");
     }
     info!("Total:{cnt}");
     Ok(())
