@@ -86,12 +86,12 @@ lazy_static! {
 pub fn detect_history_files() -> Vec<String> {
     let mut files = Vec::new();
     for (browser, pattern) in DEFAULT_PROFILES.iter() {
-        debug!("detect {}...", browser);
+        debug!("detect {browser}...");
         if let Ok(entries) = glob::glob(pattern) {
             for e in entries {
                 match e {
                     Ok(file) => files.push(file.into_os_string().into_string().unwrap()),
-                    Err(e) => debug!("glob err:{:?}", e),
+                    Err(e) => debug!("glob err:{e:?}"),
                 }
             }
         }

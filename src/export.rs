@@ -9,7 +9,7 @@ use crate::{
 
 pub fn export_csv(csv_file: String, db_file: String) -> Result<()> {
     let (start, end) = full_timerange();
-    debug!("start:{}, end:{}", start, end);
+    debug!("start:{start}, end:{end}");
 
     let db = Database::open(db_file).context("open 1History DB")?;
     let f = OpenOptions::new()
