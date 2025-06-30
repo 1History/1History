@@ -1,4 +1,3 @@
-
 use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 use home::home_dir;
 use lazy_static::lazy_static;
